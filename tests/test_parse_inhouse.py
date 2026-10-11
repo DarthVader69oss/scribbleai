@@ -5,7 +5,7 @@ from src.preprocessing.parse_inhouse import parse_inhouse_file, load_dir, writer
 
 
 def sample(writer="W01", text="the cat", strokes=None):
-    strokes = strokes or [[[10, 20, 0.0, 0.5], [12, 22, 0.01, 0.6]], [[30, 20, 0.4, 0.5]]]
+    strokes = strokes or [[[10, 20, 0.0, 0.5], [12, 60, 0.01, 0.6]], [[30, 40, 0.4, 0.5]]]
     return {"writer": writer, "hand": "right", "device": "mouse", "text": text,
             "canvas": [800, 260], "strokes": strokes}
 
@@ -33,6 +33,15 @@ def test_tiny_timestamp_jitter_is_clamped(tmp_path):
     s = parse_inhouse_file(write(tmp_path, [jitter]))
     ts = [p[2] for p in s[0].strokes[0]]
     assert ts == sorted(ts) and ts[1] == 0.5
+
+
+def test_stray_tap_dropped_but_nearby_dot_kept(tmp_path):
+    main = [[0, 0, 0.0, 0.5], [0, 100, 0.1, 0.5], [50, 100, 0.2, 0.5]]
+    near_dot = [[5, -20, 0.3, 0.5]]      # like an i-dot: close to the ink
+    far_tap = [[500, 900, 0.4, 0.5]]     # accidental tap far away
+    s = parse_inhouse_file(write(tmp_path, [sample(strokes=[main, near_dot, far_tap])]))
+    assert len(s[0].strokes) == 2
+    assert [500.0, 900.0] not in [[p[0], p[1]] for st in s[0].strokes for p in st]
 
 
 def test_empty_text_rejected(tmp_path):

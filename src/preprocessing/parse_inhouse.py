@@ -40,6 +40,30 @@ class InHouseSample:
         return max(ts) - min(ts)
 
 
+STRAY_MAX_POINTS = 2     # a "tap" is a stroke with at most this many points
+STRAY_DIST_RATIO = 0.8   # ...lying farther than this x the ink height from all other ink
+
+
+def drop_stray_taps(strokes):
+    """Remove accidental pen taps (tiny strokes far from the writing).
+
+    i-dots, periods and colons sit right next to the other ink and are kept.
+    """
+    ink = [p for st in strokes if len(st) > STRAY_MAX_POINTS for p in st]
+    if not ink:
+        return strokes
+    ys = [p[1] for p in ink]
+    h = max(max(ys) - min(ys), 1.0)
+    keep = []
+    for st in strokes:
+        if len(st) <= STRAY_MAX_POINTS:
+            dist = min(math.hypot(a[0] - p[0], a[1] - p[1]) for a in st for p in ink)
+            if dist > STRAY_DIST_RATIO * h:
+                continue
+        keep.append(st)
+    return keep
+
+
 def parse_inhouse_file(path) -> List[InHouseSample]:
     out = []
     for n, line in enumerate(Path(path).read_text(encoding="utf-8").splitlines(), 1):
@@ -73,6 +97,7 @@ def parse_inhouse_file(path) -> List[InHouseSample]:
                     s[i] = (s[i][0], s[i][1], latest, s[i][3])
                 else:
                     latest = t
+        strokes = drop_stray_taps(strokes)
         out.append(InHouseSample(writer, text, d.get("device", ""), d.get("hand", ""),
                                  tuple(d.get("canvas", (0, 0))), strokes))
     if not out:
