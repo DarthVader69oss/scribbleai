@@ -144,9 +144,16 @@ def main(argv=None):
     run = None
     if a.wandb:
         import wandb
-        run = wandb.init(project=cfg["wandb"]["project"], entity=cfg["wandb"]["entity"],
-                         name=cfg["experiment_name"] + ("_ft" if a.finetune else ""), config=cfg,
-                         resume="allow", id=(cfg["experiment_name"] + ("_ft" if a.finetune else "")))
+        run_name = cfg["experiment_name"] + ("_ft" if a.finetune else "")
+        try:
+            run = wandb.init(project=cfg["wandb"]["project"], entity=cfg["wandb"]["entity"],
+                            name=run_name, config=cfg, resume="allow", id=run_name)
+        except Exception as e:
+            # After a Colab disconnect W&B can still list the old run as active ("run ID ... is in use").
+            # Continue the curves in a fresh W&B run instead of crashing.
+            print(f"W&B could not resume run '{run_name}' ({type(e).__name__}: {e}); starting a new W&B run")
+            run = wandb.init(project=cfg["wandb"]["project"], entity=cfg["wandb"]["entity"],
+                            name=run_name + "_cont", config=cfg)
 
     bad_epochs, best_loss = 0, min([h["val_loss"] for h in history] or [math.inf])
     for epoch in range(start, epochs):
