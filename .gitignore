@@ -1,0 +1,36 @@
+# Data (tracked by DVC instead, not git)
+data/raw/*
+data/processed/*
+data/inhouse/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/inhouse/.gitkeep
+
+# Checkpoints (large binary files — do not commit)
+checkpoints/*.pt
+checkpoints/*.pth
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+
+# Environment
+.env
+venv/
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# W&B local logs
+wandb/
+
+# OS
+.DS_Store
+
+# Generated outputs
+results/
+data/processed_*/
+!data/processed/.gitkeep

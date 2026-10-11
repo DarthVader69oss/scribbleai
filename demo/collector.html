@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>ScribbleAI — Handwriting Collector</title>
+<style>
+  :root { --bg:#f6f6f4; --fg:#1d1d1b; --muted:#6b6b66; --card:#fff; --line:#d9d9d3; --accent:#2b5fa8; --ok:#2e7d4f; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#16171a; --fg:#ececea; --muted:#9a9a94; --card:#202226; --line:#383a40; --accent:#6aa0ee; --ok:#5cc08a; }
+  }
+  * { box-sizing:border-box; }
+  html,body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.45 system-ui,sans-serif; }
+  .wrap { max-width:900px; margin:0 auto; padding:16px; }
+  h1 { font-size:20px; margin:0 0 4px; }
+  .sub { color:var(--muted); margin:0 0 14px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:12px; }
+  label { display:block; font-size:13px; color:var(--muted); margin-bottom:4px; }
+  input[type=text], textarea, select { width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--fg); font:inherit; }
+  textarea { min-height:90px; font-family:ui-monospace,monospace; font-size:13px; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:end; }
+  .row > * { flex:1 1 160px; }
+  button { padding:10px 14px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--fg); font:inherit; cursor:pointer; }
+  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  button:disabled { opacity:.45; cursor:not-allowed; }
+  .prompt { font-size:26px; font-weight:600; letter-spacing:.2px; margin:2px 0 10px; word-break:break-word; }
+  .meta { display:flex; justify-content:space-between; color:var(--muted); font-size:13px; margin-bottom:6px; }
+  #pad { width:100%; height:260px; background:#fff; border:2px solid var(--line); border-radius:10px; touch-action:none; display:block; cursor:crosshair; }
+  .actions { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+  .actions .grow { flex:1; }
+  .hidden { display:none; }
+  .status { color:var(--ok); font-size:13px; min-height:18px; }
+  .warn { color:#b3541e; font-size:13px; }
+  .check { display:flex; gap:8px; align-items:flex-start; font-size:13px; color:var(--muted); }
+  .check input { margin-top:3px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>ScribbleAI handwriting collector</h1>
+  <p class="sub">Records the pen path (x, y, time, pressure) as you write. Nothing is uploaded; data stays in this browser until you export it.</p>
+
+  <!-- SETUP -->
+  <div id="setup" class="card">
+    <div class="row">
+      <div>
+        <label for="writer">Writer code (anonymous, e.g. W01)</label>
+        <input id="writer" type="text" placeholder="W01" maxlength="12">
+      </div>
+      <div>
+        <label for="hand">Writing hand</label>
+        <select id="hand"><option>right</option><option>left</option></select>
+      </div>
+      <div>
+        <label for="device">Device / pen</label>
+        <select id="device">
+          <option value="tablet-stylus">Tablet + stylus</option>
+          <option value="tablet-finger">Tablet + finger</option>
+          <option value="phone-finger">Phone + finger</option>
+          <option value="laptop-touch">Laptop touchscreen</option>
+          <option value="mouse">Mouse / trackpad</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-top:10px">
+      <label for="prompts">Prompts — one per line (edit freely, or keep the defaults)</label>
+      <textarea id="prompts"></textarea>
+    </div>
+    <div class="check" style="margin:10px 0">
+      <input id="consent" type="checkbox">
+      <span>I agree my handwriting samples (stored under the anonymous code above) may be used for this course project and released with its code.</span>
+    </div>
+    <div id="setupWarn" class="warn"></div>
+    <button id="start" class="primary">Start writing</button>
+    <button id="loadPrev" title="Reload samples auto-saved in this browser">Restore saved samples</button>
+  </div>
+
+  <!-- COLLECT -->
+  <div id="collect" class="hidden">
+    <div class="card">
+      <div class="meta"><span id="progress"></span><span id="counts"></span></div>
+      <div id="prompt" class="prompt"></div>
+      <canvas id="pad"></canvas>
+      <div class="actions">
+        <button id="undo">Undo stroke</button>
+        <button id="clear">Clear</button>
+        <button id="skip">Skip</button>
+        <span class="grow"></span>
+        <button id="save" class="primary" disabled>Save &amp; next</button>
+      </div>
+      <div id="status" class="status"></div>
+    </div>
+    <div class="card">
+      <div class="actions">
+        <button id="exportBtn" class="primary">Export data (.jsonl)</button>
+        <button id="backBtn">Back to setup</button>
+      </div>
+      <p class="sub" style="margin:8px 0 0">Export regularly and send the file to the team. Samples are also auto-saved in this browser as a safety net.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var DEFAULT_PROMPTS = [
+    // single words, mixed case / ascenders / descenders
+    "the","quick","brown","fox","jumps","over","lazy","dog","Handwriting","recognition",
+    "Pack","my","box","with","five","dozen","liquor","jugs","Please","write",
+    // short lines
+    "the cat sat on the mat","she sells sea shells","a quick brown fox","hello world 2026",
+    "Machine learning is fun","I wrote this with a pen","Birds fly over the river",
+    "Time flies like an arrow","We love long summer days","Quizzical wizards jump over","Wait, what? No way!",
+    "Meet me at 5:30 pm","My number is 4071 8392",
+    // longer lines
+    "The quick brown fox jumps over the lazy dog",
+    "Handwriting recognition turns pen strokes into text",
+    "Every sentence needs a capital letter and a full stop.",
+    "Pack my box with five dozen liquor jugs"
+  ];
+
+  var $ = function (id) { return document.getElementById(id); };
+  var pad = $("pad"), ctx = pad.getContext("2d");
+
+  var state = {
+    prompts: [], idx: 0, samples: [],
+    strokes: [],          // current sample: array of arrays of [x,y,t,p]
+    cur: null,            // stroke being drawn
+    t0: null,             // time origin for current sample (ms)
+    pointerTypes: {},
+    meta: null
+  };
+
+  var STORE_KEY = "scribbleai_samples_v1";
+
+  $("prompts").value = DEFAULT_PROMPTS.join("\n");
+
+  // ---------- canvas sizing & drawing ----------
+  function resizeCanvas() {
+    var dpr = window.devicePixelRatio || 1;
+    var r = pad.getBoundingClientRect();
+    pad.width = Math.round(r.width * dpr);
+    pad.height = Math.round(r.height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    redraw();
+  }
+
+  function drawGuides() {
+    var w = pad.clientWidth, h = pad.clientHeight;
+    ctx.save();
+    ctx.strokeStyle = "#e7e7e1"; ctx.lineWidth = 1;
+    var base = Math.round(h * 0.62), xh = Math.round(h * 0.30);
+    [base, base - xh].forEach(function (y) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    });
+    ctx.restore();
+  }
+
+  function redraw() {
+    ctx.clearRect(0, 0, pad.clientWidth, pad.clientHeight);
+    drawGuides();
+    ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = "#111";
+    state.strokes.concat(state.cur ? [state.cur] : []).forEach(function (s) {
+      if (!s.length) return;
+      ctx.beginPath(); ctx.lineWidth = 2.5;
+      ctx.moveTo(s[0][0], s[0][1]);
+      if (s.length === 1) ctx.lineTo(s[0][0] + 0.01, s[0][1]);
+      for (var i = 1; i < s.length; i++) ctx.lineTo(s[i][0], s[i][1]);
+      ctx.stroke();
+    });
+  }
+
+  // ---------- pointer capture ----------
+  function pos(e) {
+    var r = pad.getBoundingClientRect();
+    return [e.clientX - r.left, e.clientY - r.top];
+  }
+  function tNow(e) { return e.timeStamp; }   // ms, monotonic
+
+  function addPoint(e) {
+    var p = pos(e);
+    if (state.t0 === null) state.t0 = tNow(e);
+    var t = (tNow(e) - state.t0) / 1000;
+    var pr = e.pressure > 0 ? e.pressure : (e.pointerType === "mouse" ? 0.5 : 0);
+    state.cur.push([round(p[0]), round(p[1]), round(t, 4), round(pr, 3)]);
+  }
+  function round(v, d) { var m = Math.pow(10, d === undefined ? 1 : d); return Math.round(v * m) / m; }
+
+  pad.addEventListener("pointerdown", function (e) {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    e.preventDefault();
+    pad.setPointerCapture(e.pointerId);
+    state.pointerTypes[e.pointerType] = true;
+    state.cur = [];
+    addPoint(e);
+    redraw();
+  });
+  pad.addEventListener("pointermove", function (e) {
+    if (!state.cur) return;
+    e.preventDefault();
+    // use coalesced events when available for the full sampling rate
+    var evs = (e.getCoalescedEvents && e.getCoalescedEvents()) || [];
+    if (evs.length) { evs.forEach(addPoint); } else { addPoint(e); }
+    redraw();
+  });
+  function endStroke(e) {
+    if (!state.cur) return;
+    if (state.cur.length) state.strokes.push(state.cur);
+    state.cur = null;
+    $("save").disabled = state.strokes.length === 0;
+    redraw();
+  }
+  pad.addEventListener("pointerup", endStroke);
+  pad.addEventListener("pointercancel", endStroke);
+  pad.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+
+  // ---------- flow ----------
+  function resetCanvas() {
+    state.strokes = []; state.cur = null; state.t0 = null;
+    $("save").disabled = true;
+    redraw();
+  }
+
+  function showPrompt() {
+    if (state.idx >= state.prompts.length) {
+      $("prompt").textContent = "All prompts done — export your data.";
+      $("save").disabled = true; $("skip").disabled = true;
+      $("progress").textContent = state.prompts.length + " / " + state.prompts.length;
+      pad.style.opacity = 0.4; pad.style.pointerEvents = "none";
+      return;
+    }
+    pad.style.opacity = 1; pad.style.pointerEvents = "auto"; $("skip").disabled = false;
+    $("prompt").textContent = state.prompts[state.idx];
+    $("progress").textContent = "Prompt " + (state.idx + 1) + " of " + state.prompts.length;
+    $("counts").textContent = state.samples.length + " saved";
+    resetCanvas();
+  }
+
+  $("start").addEventListener("click", function () {
+    var writer = $("writer").value.trim();
+    var prompts = $("prompts").value.split("\n").map(function (s) { return s.trim(); }).filter(Boolean);
+    if (!/^[A-Za-z0-9_-]{2,12}$/.test(writer)) { $("setupWarn").textContent = "Enter an anonymous writer code (letters/digits, e.g. W01)."; return; }
+    if (!$("consent").checked) { $("setupWarn").textContent = "Please tick the consent box."; return; }
+    if (!prompts.length) { $("setupWarn").textContent = "Add at least one prompt."; return; }
+    $("setupWarn").textContent = "";
+    state.meta = {
+      writer: writer, hand: $("hand").value, device: $("device").value
+    };
+    state.prompts = prompts; state.idx = 0;
+    $("setup").classList.add("hidden"); $("collect").classList.remove("hidden");
+    resizeCanvas(); showPrompt();
+  });
+
+  $("save").addEventListener("click", function () {
+    if (!state.strokes.length) return;
+    var npts = state.strokes.reduce(function (a, s) { return a + s.length; }, 0);
+    var sample = {
+      writer: state.meta.writer, hand: state.meta.hand, device: state.meta.device,
+      pointer_types: Object.keys(state.pointerTypes),
+      prompt_id: state.idx, text: state.prompts[state.idx],
+      canvas: [round(pad.clientWidth), round(pad.clientHeight)],
+      dpr: window.devicePixelRatio || 1,
+      saved_at: new Date().toISOString(),
+      strokes: state.strokes        // [[ [x,y,t,pressure], ... ], ...]
+    };
+    state.samples.push(sample);
+    persist();
+    $("status").textContent = "Saved (" + state.strokes.length + " strokes, " + npts + " points).";
+    state.idx++; showPrompt();
+  });
+
+  $("undo").addEventListener("click", function () {
+    state.strokes.pop(); $("save").disabled = state.strokes.length === 0; redraw();
+  });
+  $("clear").addEventListener("click", resetCanvas);
+  $("skip").addEventListener("click", function () { state.idx++; $("status").textContent = "Skipped."; showPrompt(); });
+  $("backBtn").addEventListener("click", function () {
+    $("collect").classList.add("hidden"); $("setup").classList.remove("hidden");
+  });
+
+  // ---------- persistence & export ----------
+  function persist() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(state.samples)); } catch (e) { /* storage may be unavailable */ }
+  }
+  $("loadPrev").addEventListener("click", function () {
+    try {
+      var s = JSON.parse(localStorage.getItem(STORE_KEY) || "[]");
+      state.samples = s;
+      $("setupWarn").textContent = s.length ? ("Restored " + s.length + " samples. Start writing to add more.") : "Nothing saved in this browser.";
+    } catch (e) { $("setupWarn").textContent = "Could not read saved samples."; }
+  });
+
+  $("exportBtn").addEventListener("click", function () {
+    if (!state.samples.length) { $("status").textContent = "Nothing to export yet."; return; }
+    var lines = state.samples.map(function (s) { return JSON.stringify(s); }).join("\n") + "\n";
+    var blob = new Blob([lines], { type: "application/x-ndjson" });
+    var a = document.createElement("a");
+    var w = (state.meta && state.meta.writer) || "writer";
+    a.href = URL.createObjectURL(blob);
+    a.download = "scribbleai_" + w + "_" + new Date().toISOString().slice(0, 10) + ".jsonl";
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    $("status").textContent = "Exported " + state.samples.length + " samples.";
+  });
+
+  window.addEventListener("resize", function () { if (!$("collect").classList.contains("hidden")) resizeCanvas(); });
+})();
+</script>
+</body>
+</html>

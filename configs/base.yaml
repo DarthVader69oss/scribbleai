@@ -1,0 +1,94 @@
+# ScribbleAI — base experiment config
+# Every hyperparameter used anywhere in the pipeline is recorded here, not hardcoded
+# in scripts. This is what makes a run reproducible (Objective 1).
+# Copy this file (e.g. configs/exp02_lr1e-3.yaml) for each new experiment.
+
+experiment_name: "bilstm_ctc_uji_synth"
+seed: 42
+
+data:
+  raw_dir: "data/raw"
+  uji_file: "data/raw/ujipenchars2/ujipenchars2.txt"
+  uji_flip_y: false                # set true only if plotted UJI characters come out upside down
+  uji_val_writers: [1, 2, 3, 4, 5, 6]
+  corpus_file: "data/raw/corpus.txt"   # optional plain-text English corpus (one sentence/paragraph per line)
+  processed_dir: "data/processed"
+  inhouse_dir: "data/inhouse"
+  inhouse_test_writers: []         # e.g. ["W13", "W14", ...] -- decide BEFORE collecting, never change
+  vocab_file: "data/processed/vocab.json"
+  stats_file: "data/processed/feature_stats.json"
+
+preprocessing:
+  duplicate_point_eps: 0.02        # min movement (x-height units) to count as a new point
+  hook_max_len_frac: 0.10          # a hook is at most this fraction of the stroke length...
+  hook_min_angle_deg: 90           # ...and turns by at least this many degrees
+  hook_min_stroke_points: 12       # never trim hooks on strokes shorter than this (short UJI strokes)
+  deslant: true
+  baseline_correction: true
+  max_baseline_angle_deg: 15
+  resample_step: 0.12              # arc-length spacing in x-height units (smaller = more frames)
+
+synthetic:
+  train_lines: 40000               # used when training.train_source == "saved"
+  val_lines: 3000
+  test_lines: 5000
+  min_words: 1
+  max_words: 6
+  max_chars: 48
+  single_char_fraction: 0.05       # fraction of lines that are 1-3 random characters (covers rare symbols)
+  char_gap: [0.08, 0.30]           # gap between characters (x-height units)
+  space_gap: [0.70, 1.20]          # gap for a space
+  slant_deg: [-12, 12]             # augmentation ranges (whole line)
+  rotate_deg: [-3, 3]
+  scale: [0.85, 1.15]
+  char_scale_jitter: 0.08
+  baseline_wobble: 0.06
+  point_jitter: 0.008
+
+features:
+  input_dim: 8                     # dx, dy, pen_up, sin(theta), cos(theta), curvature, norm_y, stroke_end
+  vocab_size: null                 # written by build_dataset.py from the data (chars + space + blank)
+
+model:
+  hidden_size: 256
+  num_layers: 3
+  bidirectional: true
+  dropout: 0.3
+  pack_sequences: true             # keep true (padding never reaches the LSTM). Packed LSTMs are fast on
+                                   # GPU but ~15x slower on CPU; false is only for quick CPU smoke runs.
+
+training:
+  train_source: "online"           # "online" = fresh synthetic lines every epoch; "saved" = fixed train set
+  lines_per_epoch: 20000
+  batch_size: 32
+  num_epochs: 40
+  learning_rate: 0.0005
+  weight_decay: 0.00001
+  optimizer: "adamw"
+  grad_clip_norm: 5.0
+  lr_patience: 3                   # ReduceLROnPlateau on val loss
+  early_stop_patience: 8          # epochs with no improvement in val loss AND val CER
+  num_workers: 2
+  checkpoint_dir: "checkpoints"    # on Colab pass --ckpt-dir /content/drive/MyDrive/scribbleai_checkpoints
+  checkpoint_every_epoch: true
+  log_examples: 5
+
+finetune:                           # Phase 3: in-house fine-tuning experiment
+  learning_rate: 0.0001
+  num_epochs: 15
+  batch_size: 16
+
+decoding:
+  blank_index: null                # written by build_dataset.py (= vocab_size - 1)
+  beam_width_options: [1, 5, 10, 25]
+  default_beam_width: 10
+  char_lm_order: 6
+  char_lm_file: "data/processed/char_lm.json"
+  lm_alpha: 0.5                    # LM weight
+  lm_beta: 1.0                     # length bonus per character
+  word_arpa_file: "data/processed/word_3gram.arpa"   # for pyctcdecode + kenlm (optional)
+  spell_max_distance: 1
+
+wandb:
+  project: "scribbleai"
+  entity: null                      # fill in with your W&B team/username
