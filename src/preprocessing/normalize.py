@@ -48,10 +48,15 @@ def slant_angle(ink: Ink, max_deg: float = 35.0, min_aspect: float = 1.5) -> flo
     estimate is unreliable (the diagonal of a 'z' would be "corrected" away).
     """
     pts = ink_points(ink)
-    if np.ptp(pts[:, 0]) < min_aspect * max(np.ptp(pts[:, 1]), 1e-9):
+    w, h = float(np.ptp(pts[:, 0])), float(np.ptp(pts[:, 1]))
+    if h <= 0 or w <= 0:
+        return 0.0
+    # Flat ink (e.g. '-', '_', '.') has no measurable slant, and a ~0 height would give
+    # a ~0 resampling step and billions of points.
+    if h < 1e-2 * w or w < min_aspect * h:
         return 0.0
     segs = []
-    for s in resample_ink(ink, max(np.ptp(ink_points(ink)[:, 1]), 1e-9) / 50):
+    for s in resample_ink(ink, h / 50):
         if len(s) > 1:
             segs.append(np.diff(s, axis=0))
     if not segs:

@@ -63,3 +63,10 @@ def test_case_preserved_within_line():
     out = normalize_line(small + tall)
     h = [np.ptp(s[:, 1]) for s in out]
     assert h[-1] > 1.5 * h[0]
+
+def test_slant_angle_flat_stroke_is_zero():
+    import numpy as np
+    from src.preprocessing.normalize import slant_angle
+    ink = [np.stack([np.linspace(0, 1, 20), np.zeros(20)], axis=1)]   # perfectly flat
+    assert slant_angle(ink) == 0.0
+    assert slant_angle([np.array([[0.5, 0.5]])]) == 0.0               # a single dot
