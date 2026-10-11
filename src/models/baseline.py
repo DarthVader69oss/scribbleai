@@ -88,11 +88,16 @@ def main(argv=None):
                       "test_cer": float((pk != yte).mean()), "ms_per_char": ms,
                       "top_confusions": top_confusions(yte, pk)}
 
+        # Newer scikit-learn calls np.isnan on predictions during early stopping, which fails
+    # for string labels -> train the MLP on integer ids and map predictions back.
+    from sklearn.preprocessing import LabelEncoder
+    le = LabelEncoder().fit(np.r_[ytr, yva, yte])
     mlp = MLPClassifier(hidden_layer_sizes=(512, 256), alpha=1e-4, max_iter=300,
                         early_stopping=True, random_state=cfg["seed"])
-    mlp.fit(Xtr, ytr)
-    va = mlp.score(Xva, yva)
-    t0 = time.time(); pm = mlp.predict(Xte); ms = (time.time() - t0) / len(Xte) * 1000
+    mlp.fit(Xtr, le.transform(ytr))
+    va = mlp.score(Xva, le.transform(yva))
+    t0 = time.time(); pm_ids = mlp.predict(Xte); ms = (time.time() - t0) / len(Xte) * 1000
+    pm = le.inverse_transform(pm_ids)
     results["mlp"] = {"val_acc": va, "test_acc": float((pm == yte).mean()),
                       "test_cer": float((pm != yte).mean()), "ms_per_char": ms,
                       "top_confusions": top_confusions(yte, pm)}
