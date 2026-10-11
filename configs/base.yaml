@@ -14,7 +14,7 @@ data:
   corpus_file: "data/raw/corpus.txt"   # optional plain-text English corpus (one sentence/paragraph per line)
   processed_dir: "data/processed"
   inhouse_dir: "data/inhouse"
-  inhouse_test_writers: []         # e.g. ["W13", "W14", ...] -- decide BEFORE collecting, never change
+  inhouse_test_writers: ["W13", "W14", "W15", "W16", "W17", "W18", "W19", "W20"]         # e.g. ["W13", "W14", ...] -- decide BEFORE collecting, never change
   vocab_file: "data/processed/vocab.json"
   stats_file: "data/processed/feature_stats.json"
 

@@ -59,10 +59,60 @@ real data.
 
 ---
 
-## 1. Local setup and committing the new code [YOU]
+## 1. Local setup, Git and GitHub [YOU]
 
-1. Open Git Bash in `F:\STUDY_MATERIALS\Sem V\ML\LAB\project\scribbleai`.
-2. Create a virtual environment and install (Python 3.11+):
+Do this before anything else in the guide. Once the code is on GitHub every later change is tracked,
+Colab can clone it (§4), and teammates can pull it.
+
+### 1.1 Git and GitHub, one time
+
+1. Check Git is installed: `git --version`. If not, install it from git-scm.com (the defaults are fine).
+2. Tell Git who you are (once per laptop; use the e-mail of your GitHub account):
+   ```bash
+   git config --global user.name "Your Name"
+   git config --global user.email "you@example.com"
+   ```
+3. Open Git Bash **inside the project folder**: right-click the folder → *Open Git Bash here*, or
+   ```bash
+   cd "/f/STUDY_MATERIALS/Sem V/ML/LAB/project/scribbleai"
+   ```
+   `fatal: not in a git directory` means you are in the wrong folder, or the folder is not a repo yet (step 4).
+4. Turn the folder into a repo, check what will be committed, and make the first commit:
+   ```bash
+   git init -b main
+   git status                     # data/, checkpoints/*.pt, results/ and .venv/ must NOT be listed
+   git add .
+   git commit -m "Add ScribbleAI: preprocessing, synthetic lines, BiLSTM-CTC, decoding, evaluation, demo"
+   ```
+   * `warning: ... LF will be replaced by CRLF` lines are harmless: Git for Windows is converting line
+     endings. Ignore them.
+   * `git init -b main` needs Git 2.28 or newer. On an older Git use `git init`, then `git branch -M main`.
+   * **Started wrong?** Before you have pushed anything, `rm -rf .git` removes the repo history (your files
+     are untouched) and you can redo this step.
+5. Create the repository on GitHub: github.com → **+** → *New repository* → name `scribbleai` →
+   **Private** → leave *Add a README / .gitignore / licence* **unticked** → *Create repository*.
+   Copy the HTTPS URL it shows.
+6. Connect the folder to it and push:
+   ```bash
+   git remote add origin https://github.com/<your-username>/scribbleai.git
+   git push -u origin main
+   ```
+   Sign in when asked. Git for Windows normally opens a browser sign-in window. If it asks for a password
+   in the terminal instead, give a **personal access token**, not your account password: GitHub →
+   Settings → Developer settings → Personal access tokens → Tokens (classic) → tick `repo` → copy it.
+   The same token is what Colab cell 1 asks for (§4).
+7. Refresh the repo page on GitHub. You should see `src/`, `demo/`, `docs/`, `tests/` … and **no** `data/`,
+   `checkpoints/` or `results/`: they are listed in `.gitignore` because they are large or private.
+8. Teammates: repo → *Settings → Collaborators → Add people*; they then run
+   `git clone https://github.com/<your-username>/scribbleai.git`.
+
+**What goes where.** Code, configs, docs, tests and the notebook → GitHub. Raw UJI, in-house recordings,
+processed features and `best.pt` → Google Drive and your laptop, never GitHub (in-house samples are
+personal data; checkpoints are too big).
+
+### 1.2 Python environment
+
+1. In the same Git Bash window, create a virtual environment and install (Python 3.11+):
    ```bash
    python -m venv .venv
    source .venv/Scripts/activate          # Git Bash on Windows
@@ -73,15 +123,58 @@ real data.
    ```
    If PyTorch's default wheel is too big for your laptop, install the CPU build first:
    `pip install torch --index-url https://download.pytorch.org/whl/cpu`.
-3. Commit and push (check `git status` first — `data/`, `checkpoints/*.pt` and `results/` are ignored):
-   ```bash
-   git add -A
-   git commit -m "Implement preprocessing, synthetic lines, BiLSTM-CTC, decoding, evaluation, demo"
-   git push
-   ```
-4. Each teammate: `git pull`, same install, same test run.
+2. Each teammate: clone, same install, same test run.
 
-**Exit check:** tests green on every laptop; code on GitHub.
+**Exit check:** tests green on every laptop; the code is visible on GitHub.
+
+### 1.3 Day-to-day workflow
+
+```bash
+git status                      # what changed?
+git add configs/base.yaml       # name the files you changed
+git commit -m "Set LM alpha and beta from validation sweep"
+git pull --rebase               # bring in teammates' work first
+git push
+```
+* Pull before you start working and push when you finish a piece of work.
+* Only one person should edit `configs/base.yaml` at a time; it is the file most likely to conflict.
+* If `git pull` reports a conflict, open the file, keep the right lines, delete the `<<<<<<<`, `=======`,
+  `>>>>>>>` markers, then `git add <file>` and `git rebase --continue`.
+
+### 1.4 Commit messages for the changes you will make
+
+Style: one line, 72 characters or fewer, starting with a verb (*Add, Fix, Set, Update*), saying **what**
+changed. Add a second paragraph (`git commit` without `-m` opens an editor) when the **why** is not obvious.
+
+| When | What changes | Commit message |
+|---|---|---|
+| §1.1, first push | the whole project | `Add ScribbleAI: preprocessing, synthetic lines, BiLSTM-CTC, decoding, evaluation, demo` |
+| §2, only if the characters were upside down | `configs/base.yaml` (`uji_flip_y: true`) | `Set uji_flip_y after checking UJIpenchars2 orientation` |
+| §3.1, **before** anyone writes | `configs/base.yaml` (`inhouse_test_writers`) | `Fix in-house test writers W13-W20 before data collection` |
+| §5, after the first build | `configs/base.yaml` (`vocab_size`, `blank_index`, and `resample_step` if you changed it) | `Write vocab_size and blank_index from build_dataset` |
+| §8, each experiment | new `configs/expNN_<name>.yaml` | `Add exp01 config: learning rate 5e-4` |
+| §8, after choosing | `configs/base.yaml` | `Set training settings from experiment results` |
+| §9.2, after tuning on validation | `configs/base.yaml` (`lm_alpha`, `lm_beta`) | `Set LM alpha and beta from validation sweep` |
+| §9.3, after the full evaluation | copy of `summary.md` in `docs/results/` | `Add evaluation summary for run <name>` |
+| §9.4, after fine-tuning | same, for the fine-tuned run | `Add fine-tuning evaluation summary` |
+| §10, any demo fix | `demo/` | `Fix demo: <what was wrong>` (or `Update demo: <what changed>`) |
+| §12, report changes | `docs/` | `Update report outline and results tables` |
+| Before the presentation | a tag | see below |
+
+`results/` is ignored by Git, so copy the summary you want to keep before committing it:
+```bash
+mkdir -p docs/results
+cp results/<run>/summary.md docs/results/<run>_summary.md
+git add docs/results configs/base.yaml
+git commit -m "Add evaluation summary for run <run>"
+git push
+```
+
+Mark the exact version you present, so you can return to it after the demo:
+```bash
+git tag -a v1.0-demo -m "Version shown to the faculty"
+git push --tags
+```
 
 ---
 
