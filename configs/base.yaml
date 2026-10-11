@@ -47,7 +47,7 @@ synthetic:
 
 features:
   input_dim: 8                     # dx, dy, pen_up, sin(theta), cos(theta), curvature, norm_y, stroke_end
-  vocab_size: null                 # written by build_dataset.py from the data (chars + space + blank)
+  vocab_size: 99                 # written by build_dataset.py from the data (chars + space + blank)
 
 model:
   hidden_size: 256
@@ -79,7 +79,7 @@ finetune:                           # Phase 3: in-house fine-tuning experiment
   batch_size: 16
 
 decoding:
-  blank_index: null                # written by build_dataset.py (= vocab_size - 1)
+  blank_index: 98                # written by build_dataset.py (= vocab_size - 1)
   beam_width_options: [1, 5, 10, 25]
   default_beam_width: 10
   char_lm_order: 6
