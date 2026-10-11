@@ -28,6 +28,13 @@ def test_backwards_time_rejected(tmp_path):
         parse_inhouse_file(write(tmp_path, [bad]))
 
 
+def test_tiny_timestamp_jitter_is_clamped(tmp_path):
+    jitter = sample(strokes=[[[1, 1, 0.500, 0.5], [2, 2, 0.499, 0.5], [3, 3, 0.600, 0.5]]])
+    s = parse_inhouse_file(write(tmp_path, [jitter]))
+    ts = [p[2] for p in s[0].strokes[0]]
+    assert ts == sorted(ts) and ts[1] == 0.5
+
+
 def test_empty_text_rejected(tmp_path):
     with pytest.raises(ValueError, match="empty text"):
         parse_inhouse_file(write(tmp_path, [sample(text="  ")]))

@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import List, Tuple
 
 Pt = Tuple[float, float, float, float]   # x, y, t, pressure
+TIME_JITTER_S = 0.05                     # backwards timestamp steps up to this are clamped
 
 
 @dataclass
@@ -59,9 +60,19 @@ def parse_inhouse_file(path) -> List[InHouseSample]:
             for p in s:
                 if len(p) != 4 or any(math.isnan(v) for v in p):
                     raise ValueError(f"{path}:{n}: bad point {p}")
-            ts = [p[2] for p in s]
-            if ts != sorted(ts):
-                raise ValueError(f"{path}:{n}: timestamps go backwards within a stroke")
+        # Browsers occasionally report a timestamp 1 ms earlier than the previous
+        # point (timer jitter). Tolerate up to TIME_JITTER_S by clamping to the
+        # running maximum; a larger step backwards means a corrupt file.
+        for si, s in enumerate(strokes):
+            latest = s[0][2]
+            for i in range(1, len(s)):
+                t = s[i][2]
+                if t < latest:
+                    if latest - t > TIME_JITTER_S:
+                        raise ValueError(f"{path}:{n}: timestamps go backwards within a stroke")
+                    s[i] = (s[i][0], s[i][1], latest, s[i][3])
+                else:
+                    latest = t
         out.append(InHouseSample(writer, text, d.get("device", ""), d.get("hand", ""),
                                  tuple(d.get("canvas", (0, 0))), strokes))
     if not out:
