@@ -25,7 +25,7 @@ from src.preprocessing.parse_xml import (
     ParsedLine,
 )
 
-FIXTURES_DIR = Path(__file__).parent.parent / "data" / "raw" / "synthetic"
+FIXTURES_DIR = Path(__file__).parent.parent / "tests" / "fixtures" / "iamondb"
 LINESTROKES_DIR = FIXTURES_DIR / "lineStrokes"
 ASCII_DIR = FIXTURES_DIR / "ascii"
 
