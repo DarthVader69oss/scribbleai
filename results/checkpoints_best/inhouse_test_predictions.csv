@@ -1,0 +1,295 @@
+id,writer,ref,n_chars,n_strokes,n_frames,chars_per_sec,xheights_per_sec,hyp_greedy,hyp_beam,hyp_beam_lm,hyp_beam_lm_spell
+inhouse_test_00000,W13,the,3,4,96,1.742,6.197,t he,t he,t he,t he
+inhouse_test_00001,W13,quick,5,6,134,1.952,5.826,G ui Lk,G ui Lk,a vich,a rich
+inhouse_test_00002,W13,brown,5,5,172,0.208,0.818,b r o w n,b r o w n,b r o w n,b r o w n
+inhouse_test_00003,W13,fox,3,4,85,1.755,5.578,b o >L,b o >L,b o JL,b o AL
+inhouse_test_00004,W13,jumps,5,6,131,1.821,5.381,j unps,j unps,junps,jumps
+inhouse_test_00005,W13,over,4,4,104,2.073,6.072,o v e r,o v e r,over,over
+inhouse_test_00006,W13,lazy,4,4,107,1.723,5.19,l a ay,l a ay,la ay,la ay
+inhouse_test_00007,W13,dog,3,3,68,1.83,4.616,d og,d og,d og,d of
+inhouse_test_00008,W13,Handwriting,11,14,258,1.472,3.753,r a nd w - it in g,r a nd w - it in g,r a nd w - it ing,r a nd w - it ing
+inhouse_test_00009,W13,recognition,11,14,275,1.033,2.857,n e co gn i t i on,n e co gn i t i on,n e cogn it i on,n e con it i on
+inhouse_test_00010,W13,Pack,4,4,98,1.658,4.489,p a ( k,p a ( k,P a ( k,P a ( k
+inhouse_test_00011,W13,my,2,2,54,1.671,4.87,my,my,my,my
+inhouse_test_00012,W13,box,3,4,66,2.079,5.007,b o a,b o a,b o a,b o a
+inhouse_test_00013,W13,with,4,6,97,1.967,5.097,w it h,w it h,w it h,w it h
+inhouse_test_00014,W13,five,4,5,90,2.1,5.166,f i v e,f i v e,I i ve,I i we
+inhouse_test_00015,W13,dozen,5,5,150,1.441,4.923,d o g e n,d o g e n,I o g e n,I o g e n
+inhouse_test_00016,W13,liquor,6,7,127,1.422,3.251,l i g u o r,l i g u o r,lig u o r,big u o r
+inhouse_test_00017,W13,jugs,4,5,77,1.404,2.901,j u g s,j u g s,ju g s,u g s
+inhouse_test_00018,W13,Please,6,6,132,1.74,4.221,p e x s e,p e x s e,pe a se,pe a se
+inhouse_test_00019,W13,write,5,7,121,1.977,5.297,w - i t e,w - i t e,wr it e,we it e
+inhouse_test_00020,W13,the cat sat on the mat,22,22,417,2.349,4.948,t h e cat sat on the m a t,t h e cat sat on the m a t,t he cat sat on the m at,t he cat sat on the m at
+inhouse_test_00021,W13,she sells sea shells,20,17,336,1.281,2.376,5 h e s e Ii s s e a s h e IIs,5 h e s e Ii s s e a s h e IIs,she se I s se a she is,she se I s se a she is
+inhouse_test_00022,W13,a quick brown fox,17,17,310,2.2,4.343,"a g u i c K b -o wn b o >""","a g u i c K b -o wn b o >""","a g u ick b -o wn bo -""","a g u pick b -o in to -"""
+inhouse_test_00023,W13,hello world 2026,16,14,291,2.52,5.06,h e I o w o rid 2o26,h e I o w o rid 2o26,h e I o wo rid 2o-6,h e I o wo rid 2o-6
+inhouse_test_00024,W13,Machine learning is fun,23,23,406,1.985,3.805,M a ch in e l e a -n ing is b 4n,M a ch in e l e a -n ing is b 4n,n a ch in e l e a sn ing is fun,n a ch in e l e a sn ing is fun
+inhouse_test_00025,W13,I wrote this with a pen,23,23,384,1.44,2.622,S w - o t e t his w ith n p e n,S w - o t e t his w ith n p e n,5 w - o t e t his w ith a pen,5 w - o t e t his w it a pen
+inhouse_test_00026,W13,Birds fly over the river,24,23,392,2.055,3.681,B i r d s b Iy o o ex t ne ri v er,B i r d s b Iy o o ex t ne ri v er,Bir as by o vex t he river,Big as by o vex t he river
+inhouse_test_00027,W13,Time flies like an arrow,24,25,443,1.548,3.115,T i me f I ie s l i k e an a-- o w,T i me f I ie s l i k e an a-- o w,I ime fie s li ke an a--o w,I me fie s li we an a--o w
+inhouse_test_00028,W13,We love long summer days,24,20,437,0.674,1.352,w e I o ue I o n g s u m mer d a y s,w e I o ue I o n g s u m mer d a y s,we I o ve I on g s u m mer d a ys,we I o we I on g s u m me d a is
+inhouse_test_00029,W13,Quizzical wizards jump over,27,29,418,1.048,1.751,Q v iJ 3 ic  I w isa r ds ju- p o o er,Q v iJ 3 ic  I w isa r ds ju- p o o er,U vis 3 it I wisar as jum p o o er,U is 3 it I wiser as jump p o o er
+inhouse_test_00030,W13,"Wait, what? No way!",19,21,322,0.595,1.086,"w a it, w h at? No way'","w a it, w h at? No way'","wait, w h at? No way!","wait, w h at? No way!"
+inhouse_test_00031,W13,Meet me at 5:30 pm,18,18,357,1.778,3.877,Meet me at 5:3o pm,Meet me at 5:3o pm,Meet me at S: 3o pm,Meet me at S: 3o pm
+inhouse_test_00032,W13,My number is 4071 8392,22,20,450,1.756,3.95,My numbex is xo XI 8 392,My numbex is xo XI 8 392,My number is to a 392,My number is to a 392
+inhouse_test_00033,W13,The quick brown fox jumps over the lazy dog,43,41,640,1.303,2.084,T he g ui cK b -ow- bo- jumps o.vew th e Iajy dog,T he g ui cK b -ow- bo- jumps o.vew th e Iajy dog,The guick brown boa jumps ovew the lay dog,The quick brown boa jumps over the lay dog
+inhouse_test_00034,W13,Handwriting recognition turns pen strokes into text,51,58,578,1.136,1.3,nanaw-ix-g re<og-itisn tª--s pen st-ºKs int%x,"nanaw-ix-g re<og-itisn tª--s pen st-ºKs int%,x",nanaw-ixg recogition turns pen st-sks int:;,nanaw-ixg recognition turns pen st-sks in:;
+inhouse_test_00035,W13,Every sentence needs a capital letter and a full stop.,54,53,276,2.099,0.867,"""-ª---ª-""ª-ªª-ªªª----;""""-""-;;--ª,;,","""-ª---ª-""ª-ªª-ªªª----;""""-""-;;--ª,;,","""'----""'--------""'----;---;","""'----""'--------""'----;---;"
+inhouse_test_00036,W13,Pack my box with five dozen liquor jugs,39,39,582,1.338,2.136,Pa cK my bo-i with bi tC dojen Iiq vo - jugs,Pa cK my bo-i with bi tC dojen Iiq vo - jugs,pack my bon with bite dojen ia vo - jigs,pack my bon with bite dozen ia to - jigs
+inhouse_test_00037,W14,the,3,4,81,1.803,5.481,t he,t he,the,the
+inhouse_test_00038,W14,quick,5,7,108,1.586,3.71,gu icK,gu icK,guick,quick
+inhouse_test_00039,W14,brown,5,5,153,1.855,6.391,brown,brown,brown,brown
+inhouse_test_00040,W14,fox,3,4,71,1.425,3.668,fox,fox,for,for
+inhouse_test_00041,W14,jumps,5,7,103,1.702,3.765,jumps,jumps,jumps,jumps
+inhouse_test_00042,W14,over,4,4,129,1.928,7.101,ov@r,ov@r,over,over
+inhouse_test_00043,W14,lazy,4,4,105,1.652,4.901,lasy,lasy,lasy,last
+inhouse_test_00044,W14,dog,3,3,69,1.592,4.022,dog,dog,dog,dog
+inhouse_test_00045,W14,Handwriting,11,16,259,0.697,1.776,Handwziting,Handwziting,Handwaiting,Handwriting
+inhouse_test_00046,W14,recognition,11,14,263,1.665,4.401,ne cog nit ion,ne cog nit ion,recognition,recognition
+inhouse_test_00047,W14,Pack,4,6,66,1.471,2.643,PacK,PacK,Pack,Pack
+inhouse_test_00048,W14,my,2,2,58,1.552,5.062,my,my,my,my
+inhouse_test_00049,W14,box,3,3,103,1.821,7.054,bo n,bo n,bon,bon
+inhouse_test_00050,W14,with,4,6,91,1.768,4.367,with,with,with,with
+inhouse_test_00051,W14,five,4,6,69,1.832,3.347,five,five,five,five
+inhouse_test_00052,W14,dozen,5,5,112,1.484,3.708,dogen,dogen,dogen,dozen
+inhouse_test_00053,W14,liquor,6,7,143,1.886,4.936,liguor,liguor,liguor,liquor
+inhouse_test_00054,W14,jugs,4,5,74,1.808,3.571,jygs,jygs,jugs,jugs
+inhouse_test_00055,W14,Please,6,7,123,2.041,4.57,PLease,PLease,please,please
+inhouse_test_00056,W14,write,5,7,123,1.594,4.218,wri te,wri te,write,write
+inhouse_test_00057,W14,the cat sat on the mat,22,22,437,1.898,4.167,the cat sat on the mat,the cat sat on the mat,the cat sat on the mat,the cat sat on the mat
+inhouse_test_00058,W14,she sells sea shells,20,17,359,1.501,3.008,She selLs sea sheLLs,She selLs sea sheLLs,She sells sea shels,She sells sea she's
+inhouse_test_00059,W14,a quick brown fox,17,17,381,1.828,4.567,a guick brown fon,a guick brown fon,a guick brown fon,a quick brown for
+inhouse_test_00060,W14,hello world 2026,16,14,302,2.166,4.583,hcllo wor Ld 2O 2b,hcllo wor Ld 2O 2b,hello world 20 26,hello world 20 26
+inhouse_test_00061,W14,Machine learning is fun,23,24,450,1.797,3.826,Machinc Learning is fun,Machinc Learning is fun,Machine learning is fun,Machine learning is fun
+inhouse_test_00062,W14,I wrote this with a pen,23,24,430,1.476,3.028,I wrote tnis with a pen,I wrote tnis with a pen,I wrote this with a pen,I wrote this with a pen
+inhouse_test_00063,W14,Birds fly over the river,24,25,425,1.881,3.654,Bi-ds fiy over the river,Bi-ds fiy over the river,Bi-ds fly over the river,Bi-ds fly over the river
+inhouse_test_00064,W14,Time flies like an arrow,24,26,374,1.377,2.282,Time f(ies Like an arrow,Time f(ies Like an arrow,Time fies (ike an arrow,Time lies (ike an arrow
+inhouse_test_00065,W14,We love long summer days,24,20,551,1.401,3.611,we Love Long summer days,we Love Long summer days,we Love Long summer days,we Love Long summer days
+inhouse_test_00066,W14,Quizzical wizards jump over,27,30,505,1.326,2.677,Qügqicai wigards jump over,Qügqicai wigards jump over,disqical wigards jump over,disqical wizards jump over
+inhouse_test_00067,W14,"Wait, what? No way!",19,21,367,1.736,3.677,"wai t, w h at ? No way?","wai t, w h at ? No way?","wait, what I no way?","wait, what I no way?"
+inhouse_test_00068,W14,Meet me at 5:30 pm,18,19,329,1.661,3.294,Meet me at 5: 3o pm,Meet me at 5: 3o pm,Meet me at S: 3o pm,Meet me at S: 3o pm
+inhouse_test_00069,W14,My number is 4071 8392,22,20,426,1.577,3.367,my number is XO1 83a2,my number is XO1 83a2,my number is MOT B3az,my number is MOT B3az
+inhouse_test_00070,W14,The quick brown fox jumps over the lazy dog,43,42,259,1.38,0.733,"""""' i""""""""ª-ª-ªª-¡--¡-%ª,,","""""' i""""""""ª-ª-ªª-¡--¡-%ª,,","""' """"---;---","""' """"---;---"
+inhouse_test_00071,W14,Handwriting recognition turns pen strokes into text,51,62,329,1.439,0.778,"""ª""%-""""""-g""ª%g-""""""ª-""----A¡;,;,;;,;","""ª""%-""""""-g""ª%g-""""""ª-""----A¡;,;,;;,;","""'--""'""-""'--""'-""----;--;","""'--""'""-""'--""'-""----;--;"
+inhouse_test_00072,W14,Every sentence needs a capital letter and a full stop.,54,56,317,1.224,0.618,"""""ª-ºª""ªªª-ªª:ªªª¡""""ª""""ª""ª-<;,;,,;;.","""""ª-ºª""ªªª-ªª:ªªª¡""""ª""""ª""ª-<;,;,,;;.","""'--""'------""'A;--;","""'--""'------""'A;--;"
+inhouse_test_00073,W14,Pack my box with five dozen liquor jugs,39,40,233,1.31,0.673,"""ª""""-;""ª-""- ª""""ªªªª¡;,","""ª""""-;""ª-""- ª""""ªªªª,¡;,","""'--""'--""'""--;","""'--""'--""'""--;"
+inhouse_test_00074,W15,the,3,4,86,1.73,5.569,tn e,tn e,the,the
+inhouse_test_00075,W15,quick,5,7,100,1.406,2.947,g uick<,g uick<,guick,quick
+inhouse_test_00076,W15,brown,5,5,150,2.352,8.05,b r o w n,b r o w n,br own,br own
+inhouse_test_00077,W15,fox,3,5,55,1.738,3.399,Iox,Iox,Sox,Sox
+inhouse_test_00078,W15,jumps,5,6,85,1.557,2.823,jmps,jmps,jmps,jumps
+inhouse_test_00079,W15,over,4,4,103,2.417,7.054,o v C r,o v C r,over,over
+inhouse_test_00080,W15,lazy,4,5,64,1.491,2.463,'lazy,'lazy,lay,lay
+inhouse_test_00081,W15,dog,3,3,43,2.342,3.564,dgg,dgg,g,g
+inhouse_test_00082,W15,Handwriting,11,14,218,2.019,4.323,Handwrit irg,Handwrit irg,Hand writing,Hand writing
+inhouse_test_00083,W15,recognition,11,14,204,1.838,3.688,R ecogni ti n,R ecogni ti n,Recognition,Recognition
+inhouse_test_00084,W15,Pack,4,6,77,2.346,4.932,Pac K<,Pac K<,Pac I,Pay I
+inhouse_test_00085,W15,my,2,2,41,1.857,4.11,my,my,my,my
+inhouse_test_00086,W15,box,3,4,82,2.154,6.558,b ox,b ox,b ox,b ox
+inhouse_test_00087,W15,with,4,6,78,1.919,3.921,wi th,wi th,with,with
+inhouse_test_00088,W15,five,4,6,82,1.97,4.258,f iv e,f iv e,five,five
+inhouse_test_00089,W15,dozen,5,5,146,2.535,8.469,do z e n,do z e n,do - en,do - en
+inhouse_test_00090,W15,liquor,6,9,109,1.34,2.565,li syuo5,li syuo5,liguos,liguos
+inhouse_test_00091,W15,jugs,4,5,47,1.857,2.216,jgs,jgs,jgs,jugs
+inhouse_test_00092,W15,Please,6,8,154,1.761,5.059,pl Gas e,pl Gas e,Pl oase,Pl case
+inhouse_test_00093,W15,write,5,8,83,1.322,2.245,w ri te,w ri te,write,write
+inhouse_test_00094,W15,the cat sat on the mat,22,21,356,2.175,3.833,th e cat sat o n the mú,th e cat sat o n the mú,the cat sat on the mw,the cat sat on the my
+inhouse_test_00095,W15,she sells sea shells,20,19,402,1.738,3.909,sh l se l l% se a sh e l l5,sh l se l l% se a sh e l l5,sh l se l l se a sh e l ls,sh l se l l se a sh e l ls
+inhouse_test_00096,W15,a quick brown fox,17,18,280,1.898,3.447,a g uic k b ro w n Iox,a g uic k b ro w n Iox,a guick brown It,a quick brown It
+inhouse_test_00097,W15,hello world 2026,16,14,322,2.077,4.688,h l l lo w o v ld 2o 2 6,h l l lo w o v ld 2o 2 6,h ll lo w o v ld to L 6,h all lo w o v ld to L 6
+inhouse_test_00098,W15,Machine learning is fun,23,24,374,1.672,2.973,M a chin e le ar n irg is Iun,M a chin e le ar n irg is Iun,Ma chin e le ar ning is fun,Ma chin e le ar sing is fun
+inhouse_test_00099,W15,I wrote this with a pen,23,25,343,1.929,3.094,I w r o te t his wit h r pe n,I w r o te t his wit h r pe n,I wrote this with a pen,I wrote this with a pen
+inhouse_test_00100,W15,Birds fly over the river,24,26,391,2.116,3.762,Biv d s f ly o v o r th e r i ve r,Biv d s f ly o v o r th e r i ve r,Biv d s fly o vo r the river,Big d s fly o to r the river
+inhouse_test_00101,W15,Time flies like an arrow,24,26,386,2.166,3.797,Tim e f I ie s I i k< e an a- ro w,Tim e f I ie s I i k< e an a- ro w,Tim e f I ies I ik e an am row,Tim e f I is I i e an am row
+inhouse_test_00102,W15,We love long summer days,24,20,518,2.307,5.614,W e l o v e l o ng s u mm er d ays,W e l o v e l o ng s u mm er d ays,We l o ve long s u mm er days,We l o we long s u my er days
+inhouse_test_00103,W15,Quizzical wizards jump over,27,31,466,1.938,3.637,K u iz- i< l w iz a - dt jump sv €r,K u iz- i< l w iz a - dt jump sv €r,a vizzic l w iz a wd jump ow Gr,a vizzic l w i a we jump ow Gr
+inhouse_test_00104,W15,"Wait, what? No way!",19,21,287,1.503,2.406,"w a i t, wh af ? Ns way :","w a i t, wh af ? Ns way :","wait, what I No way:","wait, what I No way:"
+inhouse_test_00105,W15,Meet me at 5:30 pm,18,19,308,1.291,2.412,M e e t m e at T: 3 O p m,M e e t m e at T: 3 O p m,Me e t me at S: 3 O pm,Me e t me at S: 3 O pm
+inhouse_test_00106,W15,My number is 4071 8392,22,21,412,2.025,4.192,Mg nu m b e r is H(O 7 I 8 3 a2,Mg nu m b e r is H(O 7 I 8 3 a2,My nu m b e r is to J 0 3 az,My nu m b e r is to J 0 3 a
+inhouse_test_00107,W15,The quick brown fox jumps over the lazy dog,43,44,642,2.048,3.297,"T h e gu ic K b v o w n Iux j  mps su€ r the lazy ds,","T h e gu ic K b v o w n Iux j  mps su€ r the lazy ds,","The guick by own fut jumps outr the lazy do,","The quick by own but jumps out the lazy do,"
+inhouse_test_00108,W15,Handwriting recognition turns pen strokes into text,51,67,914,1.741,3.37,Iandw v iti rg r e cog u i tio n tur ns pen stL o Kes int o IlxI,Iandw v iti rg r e cog u i tio n tur ns pen stL o Kes int o IlxI,If and writing recog uition tur ns pen stro kes into texI,If and writing recon tuition our is pen strop yes into text
+inhouse_test_00109,W15,Pack my box with five dozen liquor jugs,39,45,602,1.652,2.747,Pa c K< my b ox w it h t ivs do z en Liquo r jugs,Pa c K< my b ox w it h t ivs do z en Liquo r jugs,Fack my b ot with t iut do a en Livor jugs,Back my b to with t it do a en Liver jugs
+inhouse_test_00110,W16,the,3,4,59,0.597,1.279,the,the,the,the
+inhouse_test_00111,W16,quick,5,7,112,0.502,1.221,aui cK,aui cK,quick,quick
+inhouse_test_00112,W16,brown,5,5,146,0.799,2.648,b r o wn,b r o wn,b r own,b r own
+inhouse_test_00113,W16,fox,3,5,65,0.339,0.81,f ox,f ox,f ot,f to
+inhouse_test_00114,W16,jumps,5,6,125,0.39,1.081,jumps,jumps,jumps,jumps
+inhouse_test_00115,W16,over,4,4,91,1.421,3.655,Over,Over,over,over
+inhouse_test_00116,W16,lazy,4,4,71,0.462,0.874,Iacy,Iacy,lacy,lacy
+inhouse_test_00117,W16,dog,3,3,86,0.397,1.298,do g,do g,do g,do g
+inhouse_test_00118,W16,Handwriting,11,16,244,0.513,1.237,I andw r; t ing,I andw r; t ing,"""and writ ing","""and writ ing"
+inhouse_test_00119,W16,recognition,11,14,211,0.62,1.282,rc c O qni t ion,rc c O qni t ion,recognit in,recognit in
+inhouse_test_00120,W16,Pack,4,5,97,1.366,3.662,Pac K,Pac K,pack,pack
+inhouse_test_00121,W16,my,2,2,42,1.394,3.145,my,my,my,my
+inhouse_test_00122,W16,box,3,4,88,1.253,4.105,b o x,b o x,box,box
+inhouse_test_00123,W16,with,4,6,91,1.312,3.31,w it h,w it h,with,with
+inhouse_test_00124,W16,five,4,6,51,1.486,1.904,fivc,fivc,five,five
+inhouse_test_00125,W16,dozen,5,5,118,0.596,1.58,d o zen,d o zen,dozen,dozen
+inhouse_test_00126,W16,liquor,6,7,121,1.315,2.917,I¡9u o r,I¡9u o r,liau or,liar or
+inhouse_test_00127,W16,jugs,4,5,79,0.803,1.735,juqs,juqs,juqs,jugs
+inhouse_test_00128,W16,Please,6,6,134,0.547,1.359,pe as e,pe as e,pe a se,pe a se
+inhouse_test_00129,W16,write,5,7,110,0.714,1.679,wr it e,wr it e,write,write
+inhouse_test_00130,W16,the cat sat on the mat,22,22,372,0.877,1.632,t h cat sat o n t he mai,t h cat sat o n t he mai,the cat sat on the mat,the cat sat on the mat
+inhouse_test_00131,W16,she sells sea shells,20,17,271,0.533,0.783,Sne seIIs sea She(s,Sne seIIs sea She(s,"She se Is sea she,","She se Is sea she,"
+inhouse_test_00132,W16,a quick brown fox,17,18,317,0.622,1.271,a 9uicK b r o wn fox,a 9uicK b r o wn fox,a quick b r own fux,a quick b r own fun
+inhouse_test_00133,W16,hello world 2026,16,14,279,0.895,1.723,h e(o Wo rIU 2O 26,h e(o Wo rIU 2O 26,he worl 20 26,he work 20 26
+inhouse_test_00134,W16,Machine learning is fun,23,24,394,0.98,1.817,Mac h in c Ic arn ing is fun,Mac h in c Ic arn ing is fun,Machine Ic arning is fun,Machine I warning is fun
+inhouse_test_00135,W16,I wrote this with a pen,23,23,381,0.451,0.818,I Wrote th is w it y a P@n,I Wrote th is w it y a P@n,I wrote this wit a a Pn,I wrote this wit a a In
+inhouse_test_00136,W16,Birds fly over the river,24,24,392,0.943,1.695,"Bixd, tIy o u er tnc riv er","Bixd, tIy o u er tnc riv er","Bird, ty ou er the river","Bird, ty you er the river"
+inhouse_test_00137,W16,Time flies like an arrow,24,25,417,0.576,1.091,rime I I¡cg Iik<e an ar y o W,rime I I¡cg Iik<e an ar y o W,Time I lics Iike an ar y o W,Time I lies Like an ar y o W
+inhouse_test_00138,W16,We love long summer days,24,20,431,0.793,1.573,w e Io V c Io nq summer days,w e Io V c Io nq summer days,we o v c Iong summer days,we o v c Long summer days
+inhouse_test_00139,W16,Quizzical wizards jump over,27,29,472,0.828,1.583,Quiz-ical W; zar ds Ji mp o v er,Quiz-ical W; zar ds Ji mp o v er,Ouizzical W; cards Jimp over,Quizzical W; cards Jump over
+inhouse_test_00140,W16,"Wait, what? No way!",19,21,395,0.776,1.781,"w ai t, w nat? No W ay !","w ai t, w nat? No W ay !","w ait, w nat? No way!","w ait, w nat? No way!"
+inhouse_test_00141,W16,Meet me at 5:30 pm,18,17,333,0.685,1.39,Me e t me av s: 3 o Pm,Me e t me av s: 3 o Pm,meet me at S: 3o Pm,meet me at S: 3o Pm
+inhouse_test_00142,W16,My number is 4071 8392,22,19,367,0.724,1.333,My numb c r s 4O 1 8392,My numb c r s 4O 1 8392,My number s 4on 5392,My number s 4on 5392
+inhouse_test_00143,W16,The quick brown fox jumps over the lazy dog,43,42,750,1.011,1.932,The auicK< by own fo s jumps ov er the Iazy dog,The auicK< by own fo s jumps ov er the Iazy dog,The auick by own fo s jumps over the acy dog,The quick by own to s jumps over the any dog
+inhouse_test_00144,W16,Handwriting recognition turns pen strokes into text,51,62,349,0.541,0.329,"""ª""i-""i""-ª""ª%s-""i""º- iú""ª;rªª-i-;ª,ñ;;","""ª""i-""i""-ª""ª%s-""i""º- iú""ª;rªª-i-;ª,ñ;;","""'Ti--""'--""'--""'--""'------""","""'Ti--""'--""'--""'--""'------"""
+inhouse_test_00145,W16,Every sentence needs a capital letter and a full stop.,54,52,255,0.612,0.232,"%ªº""""""""-""ªªªªªª""ª""ª""i""ª;;;,;;,","%""º""""""""-""ªªªªªª""ª""ª""i""ª;;;,;;,","""'""-----""'ix;-;","""'""-----""'ix;-;"
+inhouse_test_00146,W16,Pack my box with five dozen liquor jugs,39,40,710,0.506,1.012,pacK my ho x With tiv e dozen Iiauor jugs,pacK my ho x With tiv e dozen Iiauor jugs,pack my ho X with five dozen liauor jugs,pack my ho X with five dozen liquor jugs
+inhouse_test_00147,W17,the,3,5,70,0.386,0.984,th€,th€,tht,the
+inhouse_test_00148,W17,quick,5,8,109,0.219,0.488,quü,quü,quit,quit
+inhouse_test_00149,W17,brown,5,5,178,0.595,2.427,brown,brown,brown,brown
+inhouse_test_00150,W17,fox,3,3,80,0.728,2.165,bor,bor,bor,for
+inhouse_test_00151,W17,jumps,5,7,102,0.696,1.486,jmps,jmps,5mps,5mps
+inhouse_test_00152,W17,over,4,4,112,0.821,2.618,over,over,over,over
+inhouse_test_00153,W17,lazy,4,5,81,0.609,1.331,lazy,lazy,lazy,lazy
+inhouse_test_00154,W17,dog,3,4,68,0.655,1.659,dog,dog,dog,dog
+inhouse_test_00155,W17,Handwriting,11,21,236,0.569,1.259,Handwriing:,Handwriing:,Handwriting,Handwriting
+inhouse_test_00156,W17,recognition,11,16,212,0.552,1.132,recogniion,recogniion,recognion,recognion
+inhouse_test_00157,W17,Pack,4,7,77,0.944,1.931,PcK,PcK,Pck,Pick
+inhouse_test_00158,W17,my,2,3,48,0.639,1.693,myf,myf,my,my
+inhouse_test_00159,W17,box,3,4,105,0.668,2.648,bon,bon,bon,bon
+inhouse_test_00160,W17,with,4,6,88,0.772,1.815,wih,wih,with,with
+inhouse_test_00161,W17,five,4,5,63,1.076,1.768,pªe,pªe,pie,pie
+inhouse_test_00162,W17,dozen,5,6,149,1.271,4.303,dozen,dozen,dozen,dozen
+inhouse_test_00163,W17,liquor,6,8,109,0.847,1.615,"l,guor","l,guor",lur,lur
+inhouse_test_00164,W17,jugs,4,5,70,0.95,1.745,jygs,jygs,jgs,jugs
+inhouse_test_00165,W17,Please,6,7,129,1.159,2.723,Please,Please,Please,Please
+inhouse_test_00166,W17,write,5,7,95,1.033,2.115,wxife,wxife,write,write
+inhouse_test_00167,W17,the cat sat on the mat,22,23,405,0.742,1.495,the cat sct on tne mat,the cat sct on tne mat,the cat sat on the mat,the cat sat on the mat
+inhouse_test_00168,W17,she sells sea shells,20,19,389,1.067,2.321,slne sells sea shells,slne sells sea shells,she sells sea shells,she sells sea shells
+inhouse_test_00169,W17,a quick brown fox,17,18,362,1.845,4.387,a guick Isxown fon,a guick Isxown fon,a guick rown for,a quick down for
+inhouse_test_00170,W17,hello world 2026,16,17,378,1.096,2.91,hello world 2Oz 6,hello world 2Oz 6,hello world COz G,hello world COz G
+inhouse_test_00171,W17,Machine learning is fun,23,28,423,1.151,2.286,Niad-ine learning is fun,Niad-ine learning is fun,Marine learning is fun,Marine learning is fun
+inhouse_test_00172,W17,I wrote this with a pen,23,27,402,0.432,0.822,f wrote this witln a pen,f wrote this witln a pen,I wrote this with a pen,I wrote this with a pen
+inhouse_test_00173,W17,Birds fly over the river,24,27,462,0.248,0.519,Birds fly over tle r%ver,Birds fly over tlne r%ver,Birds fly over the river,Birds fly over the river
+inhouse_test_00174,W17,Time flies like an arrow,24,25,473,0.672,1.451,Time flies like an arrow,Time flies like an arrow,Time flies like an arrow,Time flies like an arrow
+inhouse_test_00175,W17,We love long summer days,24,21,506,1.425,3.358,we love long summe days,we love long summe days,we love long summe days,we love long summer days
+inhouse_test_00176,W17,Quizzical wizards jump over,27,29,496,1.264,2.537,Qv¡zzicd wizards jmf ova,Qv¡zzicd wizards jmf ova,Ouizzicd wizards jum ove,Ouizzicd wizards jump one
+inhouse_test_00177,W17,"Wait, what? No way!",19,27,311,0.536,0.907,"wai, what? Mo way!","wai, what? Mo way!","wait, whit? Mo way!","wait, whit? Mo way!"
+inhouse_test_00178,W17,Meet me at 5:30 pm,18,21,333,1.287,2.568,xieet me at s:3o pm,xieet me at s:3o pm,pieet me at S.3o pm,piet me at S.3o pm
+inhouse_test_00179,W17,My number is 4071 8392,22,22,419,0.721,1.516,",Yy number is 4o1 83y2",",Yy number is 4o1 83y2",My number is Mo? O3y2,My number is Mo? O3y2
+inhouse_test_00180,W17,The quick brown fox jumps over the lazy dog,43,45,685,0.821,1.416,T(e (jV%cK baoün fxjumps ova thelazydgg,T(e (jV%cK baoün fxjumps ova thelazydgg,Ye quick baown faumps ova the lazydgg,Ye quick blown flumps ova the lazydgg
+inhouse_test_00181,W17,Handwriting recognition turns pen strokes into text,51,66,339,0.578,0.319,"""""ª"""""""""";ªª""""""""ª""----""ª---A;,;;;;;","""""ª"""""""""";ªª""""""""ª""----""ª---A;,;;;;;","""'--""'""--""'""----""'--;;;;","""'--""'""--""'""----""'--;;;;"
+inhouse_test_00182,W17,Every sentence needs a capital letter and a full stop.,54,54,314,1.162,0.598,"""""%""""""ª""ªªª'-ª:ª¡""w%ª""ªª,;;;,","""""%""""""ª""ªªª'-ª:ª¡""w%ª""ªª,;;;,","""'-""'--""';","""'-""'--""';"
+inhouse_test_00183,W17,Pack my box with five dozen liquor jugs,39,46,235,0.699,0.352,"""ª"""";"""""""""""" i""ªªªª;;;,","""ª"""""";"""""""""""" i""ªªªª;;;,","""'""""-""' i","""'""""-""' i"
+inhouse_test_00184,W18,the,3,5,63,1.108,2.486,the,the,the,the
+inhouse_test_00185,W18,quick,5,8,104,1.244,2.78,Guick,Guick,quick,quick
+inhouse_test_00186,W18,brown,5,5,166,0.749,2.817,b r o w n,b r o w n,br own,br own
+inhouse_test_00187,W18,fox,3,5,68,1.772,4.42,fo>c,fo>c,FoJc,FoJc
+inhouse_test_00188,W18,jumps,5,6,117,1.051,2.713,jmps,jmps,jumps,jumps
+inhouse_test_00189,W18,over,4,4,107,1.448,4.349,o ve r,o ve r,ove r,one r
+inhouse_test_00190,W18,lazy,4,4,62,0.943,1.588,lª<y,lª<y,lay,lay
+inhouse_test_00191,W18,dog,3,3,53,1.55,2.961,dªg,dªg,dig,dig
+inhouse_test_00192,W18,Handwriting,11,15,250,0.799,1.993,Handw riting,Handw riting,Hand writing,Hand writing
+inhouse_test_00193,W18,recognition,11,15,213,1.267,2.632,r e cognit¡o 11,r e cognit¡o 11,recognition,recognition
+inhouse_test_00194,W18,Pack,4,5,75,1.33,2.66,Pa(k,Pa(k,Pack,Pack
+inhouse_test_00195,W18,my,2,2,48,1.078,2.822,my,my,my,my
+inhouse_test_00196,W18,box,3,4,102,1.65,6.362,bo ><,bo ><,bo sc,to sc
+inhouse_test_00197,W18,with,4,7,83,1.431,3.231,w%fh,w%fh,with,with
+inhouse_test_00198,W18,five,4,6,71,1.605,3.057,f%ve,f%ve,five,five
+inhouse_test_00199,W18,dozen,5,5,156,1.52,5.371,d o zen,d o zen,do cen,do can
+inhouse_test_00200,W18,liquor,6,7,114,1.244,2.562,l;guo r,l;guo r,liguor,liquor
+inhouse_test_00201,W18,jugs,4,5,75,1.332,2.679,j%ys,j%ys,jys,joys
+inhouse_test_00202,W18,Please,6,7,130,1.427,3.394,Pleas e,Pleas e,please,please
+inhouse_test_00203,W18,write,5,7,121,1.541,4.102,writ e,writ e,write,write
+inhouse_test_00204,W18,the cat sat on the mat,22,24,392,0.726,1.416,the cat s at on the mat,the cat s at on the mat,the cat s at on the mat,the cat s at on the mat
+inhouse_test_00205,W18,she sells sea shells,20,17,396,1.297,2.874,she sel l s se a sh e l l s,she sel l s se a sh e l l s,she sell s se a she l ls,she sell s se a she l ls
+inhouse_test_00206,W18,a quick brown fox,17,17,371,1.163,2.854,a guÍ ck b ro w n Io)(,a guÍ ck b ro w n Io)(,a quick brow n Io J,a quick brow n Io J
+inhouse_test_00207,W18,hello world 2026,16,14,301,1.665,3.458,hello wo rld 2o26,hello wo rld 2o26,hello world 2026,hello world 2026
+inhouse_test_00208,W18,Machine learning is fun,23,24,414,1.037,2.027,Machin lcarn%ng is fun,Machin lcarn%ng is fun,Machine learning is fun,Machine learning is fun
+inhouse_test_00209,W18,I wrote this with a pen,23,25,342,1.176,1.871,I wrote this with a be n,I wrote this with a be n,I wrote this with a be a,I wrote this with a be a
+inhouse_test_00210,W18,Birds fly over the river,24,24,422,1.329,2.561,Birds fly over the r% er,Birds fly over the r% er,Birds fly over the river,Birds fly over the river
+inhouse_test_00211,W18,Time flies like an arrow,24,26,415,1.256,2.371,T¡ne flies libe an arMow,T¡nne flies libe an arMow,Tne flies libe an arrow,The flies like an arrow
+inhouse_test_00212,W18,We love long summer days,24,21,571,1.549,4.181,W e lov e long su nnme r dag s,W e lov e long su nnme r dag s,We love long su nnme r days,We love long so name r days
+inhouse_test_00213,W18,Quizzical wizards jump over,27,20,284,1.857,2.091,Ou%zical wiards,Ou%zical wiards,Ouizical wiards,Ouizical wizards
+inhouse_test_00214,W18,"Wait, what? No way!",19,21,271,1.069,1.615,"wait, what ? No way I","wait, what ? No way I","wait, what I No way I","wait, what I No way I"
+inhouse_test_00215,W18,Meet me at 5:30 pm,18,17,308,1.546,2.9,M e et me at S: 3o pm,M e et me at S: 3o pm,Me et me at S: 3o pm,Me et me at S: 3o pm
+inhouse_test_00216,W18,My number is 4071 8392,22,19,417,1.324,2.782,My numb e r %s 4O1) 8392,My numb e r %s 4O1) 8392,My number is Mor) 6392,My number is For) 6392
+inhouse_test_00217,W18,The quick brown fox jumps over the lazy dog,43,27,500,2.69,3.43,.he gu%ck brown fo>i jumps,.he gu%ck brown fo>i jumps,The guick brown fon jumps,The quick brown for jumps
+inhouse_test_00218,W18,Handwriting recognition turns pen strokes into text,51,57,385,1.315,0.913,"Hª-úª""Ii-,ªª%-""""""i""i-m pªª-""ªª;;;","Hª-úª""Ii-,ªª%-""""""i""i-m pªª-""ªª;;;","""'Tim,--""'""-mp""A;;","""'Tim,--""'""-mp""A;;"
+inhouse_test_00219,W18,Every sentence needs a capital letter and a full stop.,54,56,291,0.884,0.39,"""""ª-""-""ªª' ªª:ª-ª¡:""%%ª;;,;¡.","""""-""""""ªª' ªª:ª-ª¡:""%%ª;;,.;¡.","""'--""'-----""","""'--""'-----"""
+inhouse_test_00220,W18,Pack my box with five dozen liquor jugs,39,39,204,1.44,0.598,"""""-ª---"":"""""""":.;¡.","""""-ª---"":"""""""":.;¡.","""'----""'I.","""'----""'I."
+inhouse_test_00221,W19,the,3,4,79,2.396,6.998,I hl,I hl,I hl,I hl
+inhouse_test_00222,W19,quick,5,7,118,2.131,5.469,Guic1c,Guic1c,guicc,guicc
+inhouse_test_00223,W19,brown,5,5,147,2.264,7.553,baown,baown,baown,blown
+inhouse_test_00224,W19,fox,3,3,53,2.455,4.636,pº4,pº4,pon,on
+inhouse_test_00225,W19,jumps,5,6,80,2.014,3.421,jumps,jumps,jumps,jumps
+inhouse_test_00226,W19,over,4,4,108,2.658,8.216,Ovex,Ovex,over,over
+inhouse_test_00227,W19,lazy,4,5,58,2.147,3.276,lªzy,lªzy,lay,lay
+inhouse_test_00228,W19,dog,3,3,63,2.038,4.762,dg,dg,dg,dg
+inhouse_test_00229,W19,Handwriting,11,17,234,1.622,3.719,Htax d wait ing,Htax d wait ing,Hax d waiting,Had d waiting
+inhouse_test_00230,W19,recognition,11,14,187,2.226,4.088,xe iognition,xe iognition,Je (ognition,We (ignition
+inhouse_test_00231,W19,Pack,4,5,87,1.939,4.667,Pack,Pack,pack,pack
+inhouse_test_00232,W19,my,2,2,53,1.717,5.038,my,my,my,my
+inhouse_test_00233,W19,box,3,4,108,1.279,5.208,bo A,bo A,bo A,to A
+inhouse_test_00234,W19,with,4,6,84,2.064,4.679,w ith,w ith,with,with
+inhouse_test_00235,W19,five,4,5,56,2.656,3.946,pive,pive,five,five
+inhouse_test_00236,W19,dozen,5,6,122,2.255,6.248,do t en,do t en,do ten,do ten
+inhouse_test_00237,W19,liquor,6,7,94,2.372,3.881,liguor,liguor,liguor,liquor
+inhouse_test_00238,W19,jugs,4,5,55,2.435,3.503,jygs,jygs,jugs,jugs
+inhouse_test_00239,W19,Please,6,6,119,2.504,5.54,PLeasl,PLeasl,Please,Please
+inhouse_test_00240,W19,write,5,7,119,2.384,6.266,w xife,w xife,write,write
+inhouse_test_00241,W19,the cat sat on the mat,22,23,404,0.985,1.99,the cat sat on the mat,the cat sat on the mat,the cat sat on the mat,the cat sat on the mat
+inhouse_test_00242,W19,she sells sea shells,20,17,278,2.282,3.487,she sells sea shells,she sells sea shells,she sells sea shells,she sells sea shells
+inhouse_test_00243,W19,a quick brown fox,17,16,330,1.077,2.314,a guick baown fon,a guick baown fon,a guick brown jon,a quick brown jon
+inhouse_test_00244,W19,hello world 2026,16,14,288,2.442,4.877,hlllo Woxld 2o2b,hlllo Woxld 2o2b,hello world LO26,hello world LO26
+inhouse_test_00245,W19,Machine learning is fun,23,22,365,1.214,2.101,Machinc haxning is pn,Machinc haxning is pn,Machine hazning is pn,Machine hazing is in
+inhouse_test_00246,W19,I wrote this with a pen,23,25,325,1.875,2.856,I wrote this wifh a pen,I wrote this wifh a pen,I wrote this with a pen,I wrote this with a pen
+inhouse_test_00247,W19,Birds fly over the river,24,23,356,2.1,3.39,Bids ply ove- the aiver,Bids ply ove- the aiver,Birds ply over the river,Birds ply over the river
+inhouse_test_00248,W19,Time flies like an arrow,24,25,365,2.163,3.601,Time jlies like an arrsw,Time jlies like an arrsw,Time plies like an arrow,Time plies like an arrow
+inhouse_test_00249,W19,We love long summer days,24,20,471,1.74,3.799,Wc love long sumner days,Wc love long sumner days,We love long summer days,We love long summer days
+inhouse_test_00250,W19,Quizzical wizards jump over,27,31,535,1.681,3.654,uit ziid wizards jump o uer,uit ziid wizards jump o uer,Ouitziid wizards jump over,Ouitziid wizards jump over
+inhouse_test_00251,W19,"Wait, what? No way!",19,21,324,1.38,2.541,"wait, what? No Way !","wait, what? No Way !","wait, what.? No way!","wait, what.? No way!"
+inhouse_test_00252,W19,Meet me at 5:30 pm,18,18,352,2.103,4.542,Meet ml at s: 3opm,Meet ml at s: 3opm,Meet me at S: 3opm,Meet me at S: 3opm
+inhouse_test_00253,W19,My number is 4071 8392,22,19,369,1.072,1.982,My number is YoTI 83a2,My number is YoTI 83a2,My number is YOT 3a-,My number is YOU 3a-
+inhouse_test_00254,W19,The quick brown fox jumps over the lazy dog,43,41,246,1.744,0.87,""""":i""""""-ª""ª-¡--M:ª¡;¡;",""""":i""""""""""ª-¡--M:ª¡;¡;","""'""-----;","""'""-----;"
+inhouse_test_00255,W19,Handwriting recognition turns pen strokes into text,51,60,286,1.552,0.699,"""ª%""""""Jª'""""""' iª;;;;,;;;;;","""ª%""""""Jª""""""""' iª;;;;,;;;;;","""'""--""'ix;;;;","""'""--""'ix;;;;"
+inhouse_test_00256,W19,Every sentence needs a capital letter and a full stop.,54,51,283,0.873,0.402,""""";""""""ªª""ªªªªI¡;,,;;;;.",""""";""""""ªª""ªªªªI¡;,,,;;;;.","""'--""'I;;.","""'--""'I;;."
+inhouse_test_00257,W19,Pack my box with five dozen liquor jugs,39,39,222,1.036,0.502,"?ª""ms""%i""""i""ªªª¡;,,","?ª""ms""%i""""i""ªªª¡;,,","Ris,","Is,"
+inhouse_test_00258,W20,the,3,4,65,1.29,3.11,the,the,the,the
+inhouse_test_00259,W20,quick,5,6,81,1.438,2.414,qui<b,qui<b,quich,quick
+inhouse_test_00260,W20,brown,5,5,148,1.93,6.476,bro wn,bro wn,brown,brown
+inhouse_test_00261,W20,fox,3,5,61,0.502,1.093,fox,fox,fox,fox
+inhouse_test_00262,W20,jumps,5,7,107,1.708,3.926,junps,junps,junps,jumps
+inhouse_test_00263,W20,over,4,4,78,2.764,5.993,Ovcx,Ovcx,over,over
+inhouse_test_00264,W20,lazy,4,4,87,1.838,4.426,(a 2Y,(a 2Y,"""a 2y","""a 2y"
+inhouse_test_00265,W20,dog,3,4,78,1.854,5.349,cog,cog,clog,clog
+inhouse_test_00266,W20,recognition,11,14,228,1.585,3.591,xe c ognÍ tion,xe c ognÍ tion,recognition,recognition
+inhouse_test_00267,W20,Pack,4,6,103,1.531,4.358,pa ck<,pa ck<,pa ck,pa ok
+inhouse_test_00268,W20,my,2,2,69,1.781,7.126,my,my,my,my
+inhouse_test_00269,W20,box,3,4,80,1.904,5.643,box,box,box,box
+inhouse_test_00270,W20,with,4,8,102,0.956,2.553,witb,witb,witt,witt
+inhouse_test_00271,W20,five,4,6,63,2.036,3.313,fiv<,fiv<,fivc,five
+inhouse_test_00272,W20,dozen,5,6,125,2.08,5.821,dozen,dozen,dozen,dozen
+inhouse_test_00273,W20,liquor,6,7,107,0.972,1.871,Li quor,Li quor,Liguor,Liquor
+inhouse_test_00274,W20,jugs,4,5,66,1.705,2.969,jugs,jugs,jugs,jugs
+inhouse_test_00275,W20,Please,6,7,130,2.088,5.102,please,please,please,please
+inhouse_test_00276,W20,write,5,7,107,1.766,4.049,write,write,write,write
+inhouse_test_00277,W20,the cat sat on the mat,22,22,392,2.108,4.11,thc c at Sat on the mat,thc c at Sat on the mat,the cat sat on the mat,the cat sat on the mat
+inhouse_test_00278,W20,she sells sea shells,20,17,284,2.347,3.669,she sells sca shells,she sells sca shells,she sells sea shells,she sells sea shells
+inhouse_test_00279,W20,a quick brown fox,17,18,359,2.292,5.347,a guick bro wn fox,a guick bro wn fox,a guick brown fox,a quick brown fox
+inhouse_test_00280,W20,hello world 2026,16,15,278,2.378,4.591,hcilo world 2o26,hcilo world 2o26,hilo world roc6,hill world roc6
+inhouse_test_00281,W20,Machine learning is fun,23,27,368,2.058,3.528,Nlachinc Ica-ning is fun,Nlachinc Ica-ning is fun,plachine canning is fun,plachine canning is fun
+inhouse_test_00282,W20,I wrote this with a pen,23,24,379,1.866,3.322,I w-rote this with a pen,I w-rote this with a pen,I wrote this with a pen,I wrote this with a pen
+inhouse_test_00283,W20,Birds fly over the river,24,27,369,1.95,3.269,Birds fiy ovcr thc ríVca,Birds fiy ovcr thc ríVca,Binds fily over the rica,Binds fly over the rica
+inhouse_test_00284,W20,Time flies like an arrow,24,27,396,1.931,3.431,Timc I(Íes LÍke ax arrow,Timc I(Íes LÍke ax arrow,Time fies (ike an arrow,Time lies (ike an arrow
+inhouse_test_00285,W20,We love long summer days,24,21,457,2.124,4.486,wc Love Long Summer days,wc Love Long Summer days,we Love Long summer days,we Love Long summer days
+inhouse_test_00286,W20,Quizzical wizards jump over,27,30,522,1.837,3.905,Qu i 22Í cal wiz ards jump ovca,Qu i 22Í cal wiz ards jump ovca,quizzical we ards jump ouca,quizzical we ards jump ouch
+inhouse_test_00287,W20,"Wait, what? No way!",19,22,332,1.938,3.632,"wait, what; Nlo way I","wait, what; Nlo way I","wait, what, Mo way I","wait, what, Mo way I"
+inhouse_test_00288,W20,Meet me at 5:30 pm,18,23,343,1.753,3.586,Iect me at s: 3o pm,Iect me at s: 3o pm,lect me at S: so pm,let me at S: so pm
+inhouse_test_00289,W20,My number is 4071 8392,22,23,391,1.344,2.611,My numbea iss 4O1 H 8392,My numbea iss 4O1 H 8392,My numbea iss YOT H O392,My number is YOU H O392
+inhouse_test_00290,W20,The quick brown fox jumps over the lazy dog,43,42,212,2.149,0.879,"""""ª""""ª-""ª""--;%"";;","""""ª""""""ª-""ª""--;%"";;","""'W""---""","""'W""---"""
+inhouse_test_00291,W20,Handwriting recognition turns pen strokes into text,51,62,273,1.997,0.848,"""""-ªú""""--""-""""""ª""ª:A;;;;;;;","""""-ªú""""-""-""""""ª""ª:A;;;;;;;","""'--""'--""'A;;","""'--""'--""'A;;"
+inhouse_test_00292,W20,Every sentence needs a capital letter and a full stop.,54,54,242,1.981,0.702,"""""-""""""""ªªªªª¡""""ª'"";,;;;","""""-""""""""""ªªªªª¡""""ª'"";,;;;","""'--""'--""'--"";","""'--""'--""'--"";"
+inhouse_test_00293,W20,Pack my box with five dozen liquor jugs,39,40,202,2.182,0.908,"""""""""""ª i""""""""ªª-¡,.","""""""""""ª i""""""""ªª-¡,.","""'--""'I.","""'--""'I."
