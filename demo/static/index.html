@@ -1,130 +1,276 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="no-js">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<meta name="color-scheme" content="dark">
 <title>ScribbleAI live demo</title>
+<script>document.documentElement.className = "js";</script>
 <style>
-  /* Handwriting-exercise sheet: four-line ruling, red margin, blue-black ink.
-     System fonts only, so the demo works offline. Bahnschrift ships with Windows 10/11. */
+  /* Deep-water look: abyss blue, aqua light, signal orange for the pen-lift marks.
+     System fonts only, so the demo works offline. The title cycles through the display fonts that are
+     installed on the machine (Bahnschrift Condensed, Bank Gothic, Broadway, California FB, Felix Titling). */
   :root {
-    --desk:#e3e8ee; --sheet:#f8fafc; --rule:#b9cbe0; --rule-soft:#dbe4ef; --band:#eef3f9;
-    --ink:#1a2747; --graphite:#576274; --faint:#8a94a3; --margin:#c0373f; --line:#cdd6e1;
-    --on:#1a2747; --on-text:#f8fafc;
+    --desk:#000; --sheet:#0e1013; --rule:#4b535c; --rule-soft:#2a3037; --band:#181b1f;
+    --ink:#f2f4f6; --graphite:#adb4bc; --faint:#929ba4; --margin:#ff6b4a; --line:rgba(205,211,219,.20);
+    --on:#e9ecef; --on-text:#0b0d0f; --teal:#d7dce1; --glow:rgba(225,230,236,.14);
     --ui:"Bahnschrift","DIN Alternate","Segoe UI","Roboto Condensed","Helvetica Neue",Arial,sans-serif;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --desk:#161b22; --sheet:#1d2430; --rule:#3a4b63; --rule-soft:#2b3647; --band:#222b39;
-      --ink:#e6ecf5; --graphite:#a5b0c0; --faint:#7d8898; --margin:#e0656b; --line:#323d4e;
-      --on:#e6ecf5; --on-text:#1d2430;
-    }
-  }
   * { box-sizing:border-box; }
+  html { color-scheme:dark; scroll-behavior:smooth; }
   html, body { margin:0; background:var(--desk); color:var(--ink); }
-  body { font:16px/1.45 var(--ui); font-variant-numeric:tabular-nums; -webkit-font-smoothing:antialiased; }
-  .page { max-width:1240px; margin:0 auto; padding:22px 20px 36px; }
+  body { font:16px/1.5 var(--ui); font-variant-numeric:tabular-nums; -webkit-font-smoothing:antialiased; overflow-x:hidden;
+         background:transparent; }
+  /* the Milky Way photo is the backdrop; a dark veil keeps the text readable, the veil fades a little at the top */
+  body::before { content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+         background:linear-gradient(180deg, rgba(0,0,0,.30), rgba(0,0,0,.18) 40%, rgba(0,0,0,.34)), url("/space-bg.jpg") center / cover no-repeat #05060a; }
+  a { color:var(--ink); text-underline-offset:4px; text-decoration-color:rgba(225,230,236,.5); }
+  a:hover { color:var(--teal); }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline:3px solid var(--teal); outline-offset:3px; }
 
-  /* top line */
-  .top { display:flex; align-items:flex-end; justify-content:space-between; gap:8px 24px; flex-wrap:wrap; margin-bottom:14px; }
-  .brand { margin:0; font-size:30px; line-height:1; font-weight:700; letter-spacing:-.01em; }
-  .brand small { display:block; margin-top:6px; font-size:15px; font-weight:400; letter-spacing:0; color:var(--graphite); }
-  .model { color:var(--graphite); font-size:14px; text-align:right; max-width:46ch; }
-  .model b { color:var(--ink); font-weight:600; }
-  .model.down { color:var(--margin); }
+  #stars { opacity:.45; position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+  /* space: stars on a canvas, planets as plain CSS spheres. Both drift upwards as the page scrolls down. */
+  .space { position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
+  .planet { position:absolute; top:0; width:var(--d); height:var(--d); will-change:transform; opacity:.94; }
+  .planet .ball { position:absolute; inset:0; border-radius:50%;
+                  box-shadow:inset -.14em -.1em .28em rgba(0,0,0,.78), inset .05em .04em .12em rgba(255,255,255,.18), 0 0 80px -12px rgba(225,230,236,.18); font-size:var(--d); }
+  .planet .ring { position:absolute; left:-36%; right:-36%; top:36%; bottom:36%; border-radius:50%; transform:rotate(var(--tilt, -16deg));
+                  border:calc(var(--d) * .035) solid rgba(196,202,210,.40); box-shadow:0 0 0 calc(var(--d) * .02) rgba(196,202,210,.14), inset 0 0 0 calc(var(--d) * .02) rgba(196,202,210,.12); }
+  .planet .ring.back { clip-path:inset(0 0 50% 0); }
+  .planet .ring.front { clip-path:inset(50% 0 0 0); }
+  /* the afternoon sun: white-hot core, warm bloom, long rays, a few lens-flare ghosts */
+  .sun { position:absolute; inset:-60%; border-radius:50%; animation:shine 5s ease-in-out infinite;
+         background:radial-gradient(circle, #fff 0 8%, #fffbe6 11%, rgba(255,236,170,.85) 17%, rgba(255,190,90,.38) 30%, rgba(255,150,50,.12) 48%, transparent 66%);
+         filter:drop-shadow(0 0 22px rgba(255,205,120,.9)); mix-blend-mode:screen; }
+  .sun::before { content:""; position:absolute; inset:-130%; border-radius:50%; animation:spin 90s linear infinite;
+         background:repeating-conic-gradient(from 0deg, rgba(255,240,200,.55) 0 1.2deg, transparent 1.2deg 9deg);
+         -webkit-mask:radial-gradient(circle, #000 4%, rgba(0,0,0,.5) 22%, transparent 50%); mask:radial-gradient(circle, #000 4%, rgba(0,0,0,.5) 22%, transparent 50%); }
+  .sun::after { content:""; position:absolute; inset:-60%; border-radius:50%; animation:spin 160s linear infinite reverse;
+         background:repeating-conic-gradient(from 4deg, rgba(255,214,140,.40) 0 .6deg, transparent .6deg 17deg);
+         -webkit-mask:radial-gradient(circle, #000 6%, transparent 48%); mask:radial-gradient(circle, #000 6%, transparent 48%); }
+  .flare { position:absolute; border-radius:50%; pointer-events:none; mix-blend-mode:screen; }
+  .flare.f1 { left:-190%; top:240%; width:70%; height:70%; background:radial-gradient(circle, rgba(255,200,120,.30), transparent 68%); }
+  .flare.f2 { left:-330%; top:420%; width:40%; height:40%; background:radial-gradient(circle, rgba(150,200,255,.28), transparent 68%); }
+  .flare.f3 { left:-520%; top:640%; width:110%; height:110%; border:1px solid rgba(255,220,160,.16); background:radial-gradient(circle, transparent 55%, rgba(255,190,110,.10) 75%, transparent 78%); }
+  @keyframes shine { 50% { transform:scale(1.06); opacity:.9; } }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .ball.gas  { background:radial-gradient(circle at 30% 26%, rgba(255,255,255,.30), transparent 40%),
+                 repeating-linear-gradient(172deg, #8c9198 0 7%, #70757c 7% 13%, #a1a5ab 13% 17%, #5f646a 17% 26%); }
+  .ball.ice  { background:radial-gradient(circle at 30% 26%, rgba(255,255,255,.55), transparent 42%),
+                 repeating-linear-gradient(168deg, #c9cdd2 0 9%, #b1b6bc 9% 16%, #d7dade 16% 20%, #a3a8ae 20% 30%); }
+  .ball.uranus { background:radial-gradient(circle at 30% 26%, rgba(255,255,255,.62), transparent 44%),
+                 repeating-linear-gradient(176deg, rgba(255,255,255,.07) 0 8%, rgba(0,60,90,.06) 8% 15%),
+                 linear-gradient(160deg, #b4eef2 0%, #86cfdc 46%, #4f9fb8 100%); }
+  .planet.thin .ring { border-width:calc(var(--d) * .012); box-shadow:none; border-color:rgba(205,238,246,.42); }
+  .ball.moon { background:radial-gradient(circle at 30% 26%, rgba(255,255,255,.5), transparent 42%),
+                 radial-gradient(circle at 64% 60%, rgba(0,0,0,.22) 0 9%, transparent 10%), radial-gradient(circle at 36% 68%, rgba(0,0,0,.2) 0 6%, transparent 7%), #9ba0a6; }
+  .ball.dark { background:radial-gradient(circle at 30% 26%, rgba(255,255,255,.28), transparent 44%), #3c4046; }
+  .ball.pale { background:radial-gradient(circle at 30% 26%, rgba(255,255,255,.5), transparent 42%),
+                 radial-gradient(circle at 58% 56%, rgba(0,0,0,.16) 0 12%, transparent 13%), radial-gradient(circle at 34% 64%, rgba(0,0,0,.14) 0 7%, transparent 8%), #cfc9c0; }
 
-  /* the sheet */
-  .sheet { background:var(--sheet); border-radius:4px; box-shadow:0 1px 0 var(--line), 0 12px 28px -18px rgba(26,39,71,.35);
-           position:relative; overflow:hidden; }
-  #pad { display:block; width:100%; height:clamp(240px, 44vh, 500px); touch-action:none; cursor:crosshair; }
+  /* preloader: a short descent */
+  #pre { position:fixed; inset:0; z-index:100; background:#040a12; display:flex; align-items:center; justify-content:center;
+         transition:opacity .6s ease, visibility .6s; cursor:pointer; }
+  #pre.done { opacity:0; visibility:hidden; }
+  .pre-in { display:flex; align-items:baseline; gap:14px; color:var(--graphite); letter-spacing:.2em; text-transform:uppercase; font-size:13px; }
+  .pre-n { font-size:clamp(64px, 14vw, 140px); font-weight:300; letter-spacing:0; color:var(--ink); min-width:3ch; text-align:right; line-height:1; }
+  .no-js #pre { display:none; }
+
+  /* depth gauge */
+  .gauge { position:fixed; right:18px; top:50%; transform:translateY(-50%); z-index:5; display:flex; flex-direction:column; align-items:center; gap:8px;
+           color:var(--faint); font-size:11px; letter-spacing:.18em; text-transform:uppercase; pointer-events:none; }
+  .gauge b { color:var(--ink); font-weight:500; font-size:15px; letter-spacing:0; }
+  .gauge i { width:1px; height:90px; background:repeating-linear-gradient(to bottom, var(--faint) 0 1px, transparent 1px 9px); opacity:.6; }
+  @media (max-width: 1100px) { .gauge { display:none; } }
+
+  .nav { position:relative; z-index:6; max-width:1180px; margin:0 auto; padding:18px 22px 0; display:flex; align-items:center; justify-content:space-between; gap:10px 22px; flex-wrap:wrap; font-size:13px; letter-spacing:.1em; text-transform:uppercase; }
+  .state { display:inline-flex; align-items:center; gap:9px; color:var(--graphite); }
+  .state i { width:8px; height:8px; border-radius:50%; background:var(--faint); box-shadow:0 0 0 0 transparent; }
+  .state.ok i { background:#52e0a3; animation:ping 2.4s ease-out infinite; }
+  .state.down { color:var(--margin); text-transform:none; letter-spacing:0; font-size:14px; }
+  .state.down i { background:var(--margin); }
+  @keyframes ping { 0% { box-shadow:0 0 0 0 rgba(82,224,163,.55); } 80%,100% { box-shadow:0 0 0 9px rgba(82,224,163,0); } }
+  .links { display:flex; gap:6px 24px; flex-wrap:wrap; }
+  .links a { text-decoration:none; color:var(--graphite); padding:6px 0; position:relative; }
+  .links a::after { content:""; position:absolute; left:0; right:0; bottom:2px; height:1px; background:var(--teal); transform:scaleX(0); transform-origin:left; transition:transform .35s ease; }
+  .links a:hover { color:var(--ink); } .links a:hover::after { transform:scaleX(1); }
+
+  /* hero: the name, centred */
+  .hero { position:relative; z-index:2; text-align:center; padding:clamp(24px, 4.5vh, 56px) 20px clamp(84px, 12vh, 120px); }
+  .brand { margin:0; display:block; }
+  #word { display:inline-block; font-family:var(--ui); font-weight:700; font-size:clamp(56px, 13.5vw, 184px); line-height:1.02; letter-spacing:.01em; white-space:nowrap;
+          background:linear-gradient(180deg, #ffffff 10%, #d6dade 55%, #8d949d 100%); -webkit-background-clip:text; background-clip:text; color:transparent;
+          filter:drop-shadow(0 12px 40px rgba(225,230,236,.28)); transition:opacity .28s ease, transform .28s ease, filter .28s ease; }
+  #word.out { opacity:0; transform:translateY(10px) scale(.985); filter:blur(6px); }
+  .fontname { margin-top:8px; font-size:12px; letter-spacing:.32em; text-transform:uppercase; color:var(--faint); min-height:1.4em; transition:opacity .28s ease; }
+  .fontname.out { opacity:0; }
+  .tag { margin:18px auto 0; max-width:56ch; color:var(--graphite); font-size:clamp(15px, 1.7vw, 19px); }
+
+  main { position:relative; z-index:3; max-width:1180px; margin:-74px auto 0; padding:0 22px; }
+
+  .card { position:relative; border-radius:22px; border:1px solid var(--line);
+          background:linear-gradient(180deg, rgba(52,55,60,.62), rgba(12,13,15,.72));
+          box-shadow:0 50px 90px -34px rgba(0,0,0,.85), 0 0 0 1px rgba(255,255,255,.025) inset, 0 0 90px -34px var(--glow);
+          -webkit-backdrop-filter:blur(18px) saturate(1.25); backdrop-filter:blur(18px) saturate(1.25);
+          transition:border-color .35s ease, box-shadow .35s ease; }
+  .card:hover { border-color:rgba(220,225,231,.38); box-shadow:0 56px 96px -34px rgba(0,0,0,.9), 0 0 0 1px rgba(255,255,255,.03) inset, 0 0 110px -26px var(--glow); }
+  .card-h { display:flex; align-items:center; justify-content:space-between; gap:10px 16px; padding:16px 20px 0; flex-wrap:wrap; }
+  .eyebrow { display:flex; align-items:center; gap:12px; font-size:12px; letter-spacing:.2em; text-transform:uppercase; color:var(--teal); }
+  .eyebrow b { font-weight:500; color:var(--faint); letter-spacing:.1em; }
+  .card h2 { margin:6px 0 4px; font-size:clamp(22px, 2.4vw, 28px); font-weight:500; letter-spacing:.005em; }
+  .card p.note { margin:0 0 14px; color:var(--graphite); font-size:14.5px; max-width:60ch; }
+  .pad-card { padding-bottom:18px; }
+
+  /* the writing sheet inside its floating card */
+  .sheet { margin:14px 16px 0; background:var(--sheet); border-radius:14px; position:relative; overflow:hidden; border:1px solid rgba(205,211,219,.14);
+           box-shadow:inset 0 2px 30px rgba(0,0,0,.35); }
+  #pad { display:block; width:100%; height:clamp(240px, 42vh, 470px); touch-action:none; cursor:crosshair; }
   .answer { position:relative; padding:6px 24px 14px 64px; border-top:1px solid var(--rule); min-height:96px; }
-  .answer::before { content:""; position:absolute; left:47px; top:0; bottom:0; width:2px; background:var(--margin); opacity:.75; }
-  #out { margin:0; font-weight:300; font-size:clamp(30px, 4.4vw, 54px); line-height:1.25; letter-spacing:.01em;
-         word-break:break-word; min-height:1.25em; }
+  .answer::before { content:""; position:absolute; left:47px; top:0; bottom:0; width:2px; background:var(--margin); opacity:.8; }
+  #out { margin:0; font-weight:300; font-size:clamp(30px, 4.4vw, 54px); line-height:1.25; letter-spacing:.01em; word-break:break-word; min-height:1.25em; }
   #out.empty { color:var(--faint); font-size:clamp(20px, 2.4vw, 26px); font-weight:400; padding-top:.6em; }
-  #out:not(.empty)::after { content:""; display:inline-block; width:.06em; height:.9em; margin-left:.08em; vertical-align:-.08em;
-                            background:var(--margin); animation:blink 1.1s steps(1) infinite; }
+  #out:not(.empty)::after { content:""; display:inline-block; width:.06em; height:.9em; margin-left:.08em; vertical-align:-.08em; background:var(--margin); animation:blink 1.1s steps(1) infinite; }
   @keyframes blink { 50% { opacity:0; } }
   #err { margin:6px 0 0; font-size:14px; color:var(--margin); min-height:0; }
   #err:empty { display:none; }
 
-  /* controls under the sheet */
-  .controls { display:flex; flex-wrap:wrap; align-items:center; gap:12px 22px; margin:14px 0 0; }
-  .group { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-  .group > .lbl { color:var(--graphite); font-size:14px; margin-right:2px; }
-  button { font:inherit; font-size:15px; min-height:44px; padding:0 16px; border-radius:6px; cursor:pointer;
-           color:var(--ink); background:var(--sheet); border:1px solid var(--line); }
-  button:hover:not(:disabled) { border-color:var(--graphite); }
-  button:focus-visible, input:focus-visible, a:focus-visible { outline:3px solid var(--margin); outline-offset:2px; }
-  button:disabled { color:var(--faint); cursor:not-allowed; border-style:dashed; }
-  .modes { display:inline-flex; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:var(--sheet); }
-  .modes button { border:0; border-radius:0; border-right:1px solid var(--line); }
-  .modes button:last-child { border-right:0; }
-  .modes button[aria-pressed="true"] { background:var(--on); color:var(--on-text); }
-  .beam { display:flex; align-items:center; gap:10px; color:var(--graphite); font-size:14px; }
-  .beam input { width:130px; accent-color:var(--ink); }
-  .beam output { color:var(--ink); min-width:2ch; font-weight:600; }
-  .beam.off { opacity:.45; }
-  .status { display:flex; align-items:center; gap:12px 20px; flex-wrap:wrap; margin-top:14px; min-height:44px; }
-  #compare { margin-left:auto; background:var(--ink); color:var(--on-text); border-color:var(--ink); }
-  #compare:disabled { background:transparent; color:var(--faint); border-color:var(--line); }
+  button { font:inherit; font-size:14.5px; min-height:42px; padding:0 18px; border-radius:999px; cursor:pointer; color:var(--ink);
+           background:rgba(255,255,255,.04); border:1px solid var(--line); transition:border-color .25s ease, background .25s ease, transform .25s ease, color .25s ease; }
+  button:hover:not(:disabled) { border-color:var(--teal); background:rgba(225,230,236,.10); }
+  button:disabled { color:var(--faint); cursor:not-allowed; border-style:dashed; opacity:.7; }
+  .card-h button { min-height:36px; font-size:13px; padding:0 14px; }
 
-  /* timing */
+  .controls { display:flex; flex-wrap:wrap; align-items:center; gap:12px 22px; margin:16px 20px 0; }
+  .group { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .group > .lbl { color:var(--graphite); font-size:12px; letter-spacing:.14em; text-transform:uppercase; margin-right:2px; }
+  .modes { display:inline-flex; border:1px solid var(--line); border-radius:999px; overflow:hidden; background:rgba(255,255,255,.03); }
+  .modes button { border:0; border-radius:0; border-right:1px solid var(--line); background:transparent; }
+  .modes button:last-child { border-right:0; }
+  .modes button[aria-pressed="true"] { background:var(--on); color:var(--on-text); font-weight:600; }
+  .modes button:hover:not(:disabled):not([aria-pressed="true"]) { background:rgba(225,230,236,.12); }
+  .beam { display:flex; align-items:center; gap:10px; color:var(--graphite); font-size:14px; }
+  .beam input { width:130px; accent-color:var(--teal); }
+  .beam output { color:var(--ink); min-width:2ch; font-weight:600; }
+  .beam.off { opacity:.4; }
+  .status { display:flex; align-items:center; gap:12px 20px; flex-wrap:wrap; margin:14px 20px 0; min-height:46px; }
+  #compare { margin-left:auto; background:var(--teal); color:var(--on-text); border-color:var(--teal); font-weight:600; will-change:transform; box-shadow:0 10px 30px -10px rgba(225,230,236,.65); }
+  #compare:hover:not(:disabled) { background:#ffffff; border-color:#ffffff; }
+  #compare:disabled { background:transparent; color:var(--faint); border-color:var(--line); box-shadow:none; }
+
   .timing { display:flex; align-items:center; gap:8px 14px; flex-wrap:wrap; font-size:14px; color:var(--graphite); }
   .timing[hidden] { display:none; }
   .bar { display:flex; width:220px; height:8px; border-radius:4px; overflow:hidden; background:var(--rule-soft); }
   .bar i { display:block; height:100%; }
   .k { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:5px; vertical-align:-1px; }
-  .c1 { background:#8fa9c9; } .c2 { background:var(--ink); } .c3 { background:var(--margin); }
+  .c1 { background:#7e868f; } .c2 { background:var(--ink); } .c3 { background:var(--margin); }
   .timing strong { color:var(--ink); font-weight:600; }
 
-  /* lower panels */
-  .lower { display:grid; grid-template-columns:minmax(0, 5fr) minmax(0, 6fr); gap:28px; margin-top:30px; }
-  .lower h2 { margin:0 0 4px; font-size:19px; font-weight:600; }
-  .lower p.note { margin:0 0 12px; color:var(--graphite); font-size:14px; max-width:60ch; }
-  #view { display:block; width:100%; height:150px; background:var(--sheet); border-radius:4px; box-shadow:0 1px 0 var(--line); }
+  /* two more floating boxes */
+  .lower { display:grid; grid-template-columns:minmax(0, 5fr) minmax(0, 6fr); gap:26px; margin-top:34px; perspective:1100px; align-items:start; }
+  .box { padding:20px 20px 22px; }
+  #view { display:block; width:100%; height:190px; background:rgba(6,7,9,.62); border-radius:12px; border:1px solid rgba(205,211,219,.12); }
   table { width:100%; border-collapse:collapse; }
-  th { text-align:left; font-weight:400; font-size:13px; color:var(--graphite); padding:0 8px 6px 0; border-bottom:2px solid var(--rule); }
-  td { padding:10px 8px 10px 0; border-bottom:1px solid var(--rule-soft); vertical-align:baseline; }
+  th { text-align:left; font-weight:400; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--graphite); padding:0 8px 8px 0; border-bottom:1px solid var(--rule); }
+  td { padding:11px 8px 11px 0; border-bottom:1px solid var(--rule-soft); vertical-align:baseline; transition:background .25s ease; }
+  tr:hover td { background:rgba(225,230,236,.05); }
   td.dec { color:var(--graphite); font-size:14px; white-space:nowrap; width:1%; padding-right:18px; }
-  td.txt { font-size:22px; font-weight:300; word-break:break-word; }
+  td.txt { font-size:24px; font-weight:300; word-break:break-word; }
   td.txt.same { color:var(--graphite); }
   td.ms { text-align:right; color:var(--graphite); font-size:14px; white-space:nowrap; width:1%; }
-  td.hint { color:var(--faint); font-size:15px; padding-top:14px; }
+  td.hint { color:var(--faint); font-size:15px; padding-top:14px; border-bottom:0; }
 
-  .foot { margin-top:30px; padding-top:14px; border-top:1px solid var(--line); display:flex; gap:8px 28px; flex-wrap:wrap;
-          color:var(--graphite); font-size:14px; }
-  .foot a { color:var(--ink); }
+  /* looping strip */
+  .strip { position:relative; z-index:3; overflow:hidden; margin:64px 0 10px; white-space:nowrap; user-select:none;
+           -webkit-mask-image:linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); mask-image:linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
+  .strip .track { display:inline-flex; gap:34px; padding-right:34px; animation:loop 42s linear infinite; }
+  .strip:hover .track { animation-play-state:paused; }
+  .strip span { font-size:clamp(34px, 6vw, 78px); font-weight:300; letter-spacing:.01em; color:transparent; -webkit-text-stroke:1px rgba(190,196,204,.5); }
+  .strip span.s { -webkit-text-stroke:0; color:var(--margin); font-size:clamp(20px, 3vw, 34px); align-self:center; }
+  @keyframes loop { to { transform:translateX(-50%); } }
+
+  /* about */
+  .about { position:relative; z-index:3; max-width:1180px; margin:34px auto 0; padding:0 22px; scroll-margin-top:20px; }
+  .about .card { padding:30px 30px 32px; }
+  .about h2 { font-size:clamp(28px, 3.6vw, 44px); margin:8px 0 8px; font-weight:400; }
+  .about .lede { max-width:68ch; color:var(--graphite); font-size:16.5px; margin:0 0 26px; }
+  .facts { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:0 24px; border-top:1px solid var(--line); }
+  @media (max-width: 760px) { .facts { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 440px) { .facts { grid-template-columns:1fr; } }
+  .fact { padding:18px 18px 16px 0; border-bottom:1px solid var(--line); }
+  .fact .l { font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--faint); }
+  .fact .v { margin-top:4px; font-size:clamp(28px, 3.2vw, 42px); font-weight:300; line-height:1.15; word-break:break-word; }
+  .fact .v.small { font-size:clamp(20px, 2.2vw, 28px); font-weight:400; padding-top:.2em; overflow-wrap:anywhere; }
+  .about .more { margin-top:22px; display:flex; gap:10px 26px; flex-wrap:wrap; font-size:15px; color:var(--graphite); }
+
+  .foot { position:relative; z-index:3; max-width:1180px; margin:34px auto 0; padding:16px 22px 40px; border-top:1px solid var(--line); color:var(--graphite); font-size:14px; display:flex; gap:8px 28px; flex-wrap:wrap; justify-content:space-between; }
   .try em { font-style:normal; color:var(--ink); }
 
-  @media (max-width: 820px) {
-    .lower { grid-template-columns:1fr; }
-    .model { text-align:left; }
+  /* expand into place on scroll */
+  .js .reveal { opacity:0; --ty:46px; --sc:.95; }
+  .js .reveal.in { opacity:1; --ty:0px; --sc:1; }
+  .reveal { --rx:0deg; --ry:0deg; transform:perspective(1100px) rotateX(var(--rx)) rotateY(var(--ry)) translateY(var(--ty, 0)) scale(var(--sc, 1));
+            transition:opacity .9s ease, transform .9s cubic-bezier(.2,.8,.2,1), border-color .35s ease, box-shadow .35s ease; }
+  .reveal.tilting { transition:opacity .9s ease, transform .12s linear, border-color .35s ease, box-shadow .35s ease; }
+
+  @media (max-width: 600px) {
+    .group { width:100%; } .group > .lbl { width:100%; }
+    .modes { display:grid; grid-template-columns:1fr 1fr; width:100%; border-radius:18px; }
+    .modes button { border-right:0; border-bottom:1px solid var(--line); min-height:44px; }
+    .modes button:nth-child(odd) { border-right:1px solid var(--line); }
+    .modes button:nth-last-child(-n+2) { border-bottom:0; }
+    .status { margin-top:10px; }
   }
-  @media (prefers-reduced-motion: reduce) { #out:not(.empty)::after { animation:none; } }
+  @media (max-width: 860px) {
+    .lower { grid-template-columns:1fr; }
+    main { margin-top:-56px; padding:0 14px; }
+    .about, .nav, .foot { padding-left:14px; padding-right:14px; }
+    .sheet { margin:12px 10px 0; }
+    .controls, .status { margin-left:14px; margin-right:14px; }
+    .answer { padding-left:54px; } .answer::before { left:38px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #out:not(.empty)::after, .strip .track, .state.ok i, .sun, .sun::before, .sun::after { animation:none; }
+    .js .reveal { opacity:1; --ty:0px; --sc:1; }
+    #word, .fontname { transition:none; }
+  }
 </style>
 </head>
 <body>
-<div class="page">
-  <header class="top">
-    <h1 class="brand">ScribbleAI<small>Write on the sheet with a stylus or finger. The network reads your pen strokes and types what you wrote.</small></h1>
-    <p class="model" id="info">Connecting to the model…</p>
-  </header>
+<div id="pre" aria-hidden="true"><div class="pre-in"><span>Ascending</span><span class="pre-n" id="pre-n">0</span><span>km</span></div></div>
+<div class="space" id="space" aria-hidden="true">
+  <canvas id="stars"></canvas>
+</div>
+<div class="gauge" aria-hidden="true"><span>Altitude</span><b id="depth">0</b><span>km</span><i></i></div>
 
-  <main>
-    <section class="sheet" aria-label="Writing sheet">
+<nav class="nav" aria-label="Pages">
+  <span class="state" id="mstate"><i></i><span id="mstate-t">Connecting to the model…</span></span>
+  <span class="links"><a href="#sheet">Write</a><a href="/dashboard">Dashboard</a><a href="/gradio/">Batch scorer</a><a href="#about">About</a></span>
+</nav>
+
+<header class="hero">
+  <h1 class="brand"><span id="word">ScribbleAI</span></h1>
+  <div class="fontname" id="fontname" aria-hidden="true"></div>
+  <p class="tag">Write on the sheet with a stylus or finger. The network reads your pen strokes and types what you wrote.</p>
+</header>
+
+<main id="sheet">
+  <section class="card pad-card" aria-label="Writing sheet">
+    <div class="card-h">
+      <div class="eyebrow">Writing sheet <b>01</b></div>
+      <div class="group">
+        <button id="undo" title="Undo the last stroke (Ctrl+Z)">Undo</button>
+        <button id="clear" title="Clear the sheet (Esc)">Clear</button>
+      </div>
+    </div>
+    <div class="sheet">
       <canvas id="pad" aria-label="Writing area. Draw with a stylus, finger or mouse."></canvas>
       <div class="answer">
         <p id="out" class="empty" aria-live="polite">Your text will appear on this line.</p>
         <p id="err" role="alert"></p>
       </div>
-    </section>
+    </div>
 
     <div class="controls">
-      <div class="group">
-        <button id="undo" title="Undo the last stroke (Ctrl+Z)">Undo</button>
-        <button id="clear" title="Clear the sheet (Esc)">Clear</button>
-      </div>
       <div class="group">
         <span class="lbl" id="modes-lbl">Decoder</span>
         <div class="modes" id="modes" role="group" aria-labelledby="modes-lbl"></div>
@@ -137,37 +283,63 @@
 
     <div class="status">
       <div class="timing" id="timing" hidden>
-      <span>Read in <strong id="tot">0 ms</strong> from <span id="frames">0</span> frames</span>
-      <span class="bar" aria-hidden="true"><i class="c1" id="b1"></i><i class="c2" id="b2"></i><i class="c3" id="b3"></i></span>
-      <span><i class="k c1"></i>prepare <span id="t1"></span></span>
-      <span><i class="k c2"></i>network <span id="t2"></span></span>
-      <span><i class="k c3"></i>decode <span id="t3"></span></span>
+        <span>Read in <strong id="tot">0 ms</strong> from <span id="frames">0</span> frames</span>
+        <span class="bar" aria-hidden="true"><i class="c1" id="b1"></i><i class="c2" id="b2"></i><i class="c3" id="b3"></i></span>
+        <span><i class="k c1"></i>prepare <span id="t1"></span></span>
+        <span><i class="k c2"></i>network <span id="t2"></span></span>
+        <span><i class="k c3"></i>decode <span id="t3"></span></span>
       </div>
       <button id="compare" disabled>Compare decoders</button>
     </div>
+  </section>
 
-    <div class="lower">
-      <section>
-        <h2>What the network sees</h2>
-        <p class="note">Your writing after it is straightened, scaled and resampled. Each dot is one frame fed to the network; red dots mark where the pen was lifted.</p>
-        <canvas id="view" aria-label="Preprocessed trajectory"></canvas>
-      </section>
-      <section>
-        <h2>Every decoder on this writing</h2>
-        <p class="note">Same network output, four ways of turning it into text. Rows that match greedy are greyed out.</p>
-        <table id="cmp">
-          <tr><th>Decoder</th><th>Text</th><th style="text-align:right">Decode</th></tr>
-          <tr><td colspan="3" class="hint">Write something, then press Compare decoders.</td></tr>
-        </table>
-      </section>
-    </div>
-  </main>
+  <div class="lower">
+    <section class="card box reveal">
+      <div class="eyebrow">Inside the network <b>02</b></div>
+      <h2>What the network sees</h2>
+      <p class="note">Your writing after it is straightened, scaled and resampled. Each dot is one frame fed to the network; orange dots mark where the pen was lifted.</p>
+      <canvas id="view" aria-label="Preprocessed trajectory"></canvas>
+    </section>
+    <section class="card box reveal">
+      <div class="eyebrow">Decoding <b>03</b></div>
+      <h2>Every decoder on this writing</h2>
+      <p class="note">Same network output, four ways of turning it into text. Rows that match greedy are greyed out.</p>
+      <table id="cmp">
+        <tr><th>Decoder</th><th>Text</th><th style="text-align:right">Decode</th></tr>
+        <tr><td colspan="3" class="hint">Write something, then press Compare decoders.</td></tr>
+      </table>
+    </section>
+  </div>
+</main>
 
-  <footer class="foot">
-    <span class="try">Try writing <em>hello world</em>, <em>the quick brown fox</em> or <em>Machine learning</em>. Leave small gaps between letters and wider gaps between words.</span>
-    <span>See live statistics on the <a href="/dashboard">dashboard</a>. Score a whole collector file in the <a href="/gradio/">batch scorer</a>.</span>
-  </footer>
+<div class="strip" aria-hidden="true">
+  <div class="track" id="track">
+    <span>hello world</span><span class="s">&#9670;</span><span>the quick brown fox</span><span class="s">&#9670;</span><span>Machine learning</span><span class="s">&#9670;</span>
+    <span>hello world</span><span class="s">&#9670;</span><span>the quick brown fox</span><span class="s">&#9670;</span><span>Machine learning</span><span class="s">&#9670;</span>
+  </div>
 </div>
+
+<section class="about" id="about">
+  <div class="card reveal">
+    <div class="eyebrow">About <b>04</b></div>
+    <h2>The model behind the pen</h2>
+    <p class="lede">ScribbleAI never looks at a picture of your writing. It reads the path of the pen, point by point, with a three-layer bidirectional LSTM trained with CTC loss, then turns the network's letter probabilities into text with one of four decoders.</p>
+    <div class="facts">
+      <div class="fact"><div class="l">Checkpoint</div><div class="v small" id="a-ck">&ndash;</div></div>
+      <div class="fact"><div class="l">Trained for</div><div class="v"><span id="a-ep">&ndash;</span> <span style="font-size:.4em;color:var(--faint)">epochs</span></div></div>
+      <div class="fact"><div class="l">Validation CER</div><div class="v" id="a-cer">&ndash;</div></div>
+      <div class="fact"><div class="l">Parameters</div><div class="v" id="a-par">&ndash;</div></div>
+      <div class="fact"><div class="l">Decoders ready</div><div class="v" id="a-dec">&ndash;</div></div>
+      <div class="fact"><div class="l">Output symbols</div><div class="v" id="a-voc">&ndash;</div></div>
+    </div>
+    <div class="more"><span>CER is the share of characters read wrongly on held-out writing (lower is better).</span><a href="/dashboard">Open the dashboard</a><a href="/gradio/">Score a collector file</a></div>
+  </div>
+</section>
+
+<footer class="foot">
+  <span class="try">Try writing <em>hello world</em>, <em>the quick brown fox</em> or <em>Machine learning</em>. Leave small gaps between letters and wider gaps between words.</span>
+  <span>ScribbleAI live demo</span>
+</footer>
 
 <script>
 (function () {
@@ -375,23 +547,174 @@
     $("beam").disabled = mode === "greedy";
   }
 
+  function setModel(ok) {
+    var st = $("mstate");
+    st.className = "state " + (ok ? "ok" : "down");
+    $("mstate-t").textContent = ok ? "Model ready" : "Can't reach the model. Start it with python demo/app.py --ckpt <file>.";
+  }
   fetch("/api/info").then(function (r) { return r.json(); }).then(function (j) {
     modes = j.modes;
     var cer = (j.val_cer === null || j.val_cer === undefined) ? "unknown" : (100 * j.val_cer).toFixed(1) + "%";
-    $("info").innerHTML = "";
-    var b = document.createElement("b"); b.textContent = j.checkpoint;
-    $("info").appendChild(document.createTextNode("Model "));
-    $("info").appendChild(b);
-    $("info").appendChild(document.createTextNode(", epoch " + j.epoch + ", validation CER " + cer +
-      ", " + (j.params / 1e6).toFixed(2) + "M parameters"));
+    $("a-ck").textContent = j.checkpoint;
+    $("a-ep").textContent = (j.epoch === null || j.epoch === undefined) ? "unknown" : j.epoch;
+    $("a-cer").textContent = cer;
+    $("a-par").textContent = (j.params / 1e6).toFixed(2) + "M";
+    $("a-dec").textContent = j.modes.length;
+    $("a-voc").textContent = j.vocab_size;
+    setModel(true);
     buildModes();
-  }).catch(function () {
-    $("info").textContent = "Can't reach the model. Start it with python demo/app.py --ckpt <file>.";
-    $("info").className = "model down";
-  });
+  }).catch(function () { setModel(false); });
 
   window.addEventListener("resize", resize);
   resize(); buildModes(); syncButtons();
+})();
+</script>
+<script>
+/* Look and motion only. Nothing here touches recognition. */
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var coarse = window.matchMedia && matchMedia("(pointer: coarse)").matches;
+
+  /* ---- preloader: a short descent, any click skips it ---- */
+  var pre = $("pre");
+  if (pre) {
+    var done = false;
+    function finish() { if (done) return; done = true; pre.classList.add("done"); setTimeout(function () { pre.style.display = "none"; }, 700); }
+    if (reduce) { pre.style.display = "none"; }
+    else {
+      var t0 = performance.now(), dur = 1100, num = $("pre-n");
+      (function tick(now) {
+        var f = Math.min(1, (now - t0) / dur);
+        num.textContent = Math.round(400 * (1 - Math.pow(1 - f, 3)));
+        if (f < 1 && !done) requestAnimationFrame(tick); else finish();
+      })(t0);
+      pre.addEventListener("click", finish);
+      setTimeout(finish, 2500);                            // never trap the page behind it
+    }
+  }
+
+  /* ---- title: cycles through the display fonts that are installed on this machine ---- */
+  var FONTS = [
+    { name: "Bahnschrift Condensed", fam: '"Bahnschrift"', extra: "font-stretch:75%;font-variation-settings:'wdth' 75,'wght' 700;font-weight:700;letter-spacing:.02em" },
+    { name: "Bank Gothic Md BT", fam: '"BankGothic Md BT","Bank Gothic","BankGothic Md","BankGothic"', extra: "font-weight:400;letter-spacing:.04em" },
+    { name: "Broadway", fam: '"Broadway"', extra: "font-weight:400;letter-spacing:.01em" },
+    { name: "California FB", fam: '"California FB"', extra: "font-weight:700;letter-spacing:.005em" },
+    { name: "Felix Titling", fam: '"Felix Titling"', extra: "font-weight:400;letter-spacing:.03em" }
+  ];
+  var cv = document.createElement("canvas").getContext("2d");
+  function width(font) { cv.font = "72px " + font; return cv.measureText("mmmmmmmmmmlliWW").width; }
+  function installed(fam) {
+    var names = fam.split(",");
+    for (var i = 0; i < names.length; i++) {
+      var n = names[i].trim();
+      if (width(n + ", monospace") !== width("monospace") && width(n + ", serif") !== width("serif")) return true;
+    }
+    return false;
+  }
+  function pickFonts() { return FONTS.filter(function (f) { return installed(f.fam); }); }
+
+  var word = $("word"), cap = $("fontname"), host = word && word.parentNode;
+  function applyFont(f) {
+    word.style.cssText = "font-family:" + f.fam + ", Bahnschrift, 'Segoe UI', sans-serif;" + f.extra + ";";
+    cap.textContent = f.name;
+    fitTitle();
+  }
+  function fitTitle() {                                    // fonts differ a lot in width: shrink until it fits
+    word.style.fontSize = "";
+    var avail = (host.parentNode.clientWidth || window.innerWidth) - 32;
+    var size = parseFloat(getComputedStyle(word).fontSize), w = word.scrollWidth;
+    if (w > avail) word.style.fontSize = Math.max(34, Math.floor(size * avail / w)) + "px";
+  }
+  function startTitle() {
+    var list = pickFonts(), i = 0;
+    if (!list.length) { cap.style.display = "none"; return; }
+    applyFont(list[0]);
+    if (list.length < 2 || reduce) return;
+    setInterval(function () {
+      word.classList.add("out"); cap.classList.add("out");
+      setTimeout(function () {
+        i = (i + 1) % list.length; applyFont(list[i]);
+        word.classList.remove("out"); cap.classList.remove("out");
+      }, 300);
+    }, 3000);
+  }
+  if (word) {
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(startTitle); else startTitle();
+    window.addEventListener("resize", fitTitle);
+  }
+
+  /* ---- stars (twinkle, drift up with the scroll) and planets (rise as you scroll down) ---- */
+  var stars = $("stars"), sy = window.scrollY || 0, S = [], W = 0, H = 0, g = stars && stars.getContext("2d");
+  function sizeStars() {
+    var d = Math.min(window.devicePixelRatio || 1, 2);
+    W = stars.clientWidth; H = stars.clientHeight; stars.width = W * d; stars.height = H * d; g.setTransform(d, 0, 0, d, 0, 0);
+    var n = Math.round(Math.min(240, W * H / 8500)); S = [];
+    for (var i = 0; i < n; i++) S.push({ x: Math.random() * W, y: Math.random() * H, r: .3 + Math.random() * 1.1, d: .15 + Math.random() * .85, ph: Math.random() * 6.3 });
+    paintStars(0);
+  }
+  function paintStars(t) {
+    g.clearRect(0, 0, W, H);
+    for (var i = 0; i < S.length; i++) {
+      var p = S[i], yy = ((p.y - sy * .14 * p.d) % H + H) % H;
+      g.globalAlpha = Math.min(1, .22 + .6 * p.d * (reduce ? .8 : .62 + .38 * Math.sin(t / 900 + p.ph)));
+      g.fillStyle = "#ffffff"; g.beginPath(); g.arc(p.x, yy, p.r, 0, 6.3); g.fill();
+    }
+  }
+  var planets = Array.prototype.map.call(document.querySelectorAll(".planet"), function (el) {
+    var x = (el.getAttribute("data-x") || "l:50").split(":");
+    el.style[x[0] === "r" ? "right" : "left"] = x[1] + "vw";
+    return { el: el, y0: parseFloat(el.getAttribute("data-y0")), y1: parseFloat(el.getAttribute("data-y1")) };
+  });
+  function movePlanets() {                                 // progress 0 at the top of the page, 1 at the bottom
+    var max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight), f = Math.min(1, Math.max(0, (window.scrollY || 0) / max)), vh = window.innerHeight / 100;
+    planets.forEach(function (p) { p.el.style.transform = "translate3d(0," + ((p.y0 + (p.y1 - p.y0) * f) * vh).toFixed(1) + "px,0)"; });
+  }
+  if (stars) {
+    sizeStars(); movePlanets();
+    window.addEventListener("resize", function () { sizeStars(); movePlanets(); });
+    window.addEventListener("scroll", function () { sy = window.scrollY; movePlanets(); if (reduce) paintStars(0); }, { passive: true });
+    if (!reduce) (function frame(t) { if (!document.hidden) paintStars(t); requestAnimationFrame(frame); })(0);
+  }
+
+  /* ---- depth gauge follows the scroll ---- */
+  var dep = $("depth");
+  function depth() {
+    var max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    dep.textContent = Math.round(100 + 300 * Math.min(1, (window.scrollY || 0) / max));
+  }
+  if (dep) { depth(); window.addEventListener("scroll", depth, { passive: true }); window.addEventListener("resize", depth); }
+
+  /* ---- boxes expand into place as they come into view ---- */
+  var rev = document.querySelectorAll(".reveal");
+  if ("IntersectionObserver" in window && !reduce) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold: .12, rootMargin: "0px 0px -6% 0px" });
+    Array.prototype.forEach.call(rev, function (el) { io.observe(el); });
+  } else Array.prototype.forEach.call(rev, function (el) { el.classList.add("in"); });
+
+  /* ---- gentle 3D tilt on the lower boxes (not on the writing sheet, so the pen is never offset) ---- */
+  if (!reduce && !coarse) {
+    Array.prototype.forEach.call(document.querySelectorAll(".box, .about .card"), function (el) {
+      el.addEventListener("pointermove", function (e) {
+        var r = el.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+        el.classList.add("tilting"); el.style.setProperty("--ry", (x * 5).toFixed(2) + "deg"); el.style.setProperty("--rx", (-y * 4).toFixed(2) + "deg");
+      });
+      el.addEventListener("pointerleave", function () { el.classList.remove("tilting"); el.style.setProperty("--ry", "0deg"); el.style.setProperty("--rx", "0deg"); });
+    });
+  }
+
+  /* ---- magnetic call-to-action ---- */
+  var cta = $("compare");
+  if (cta && !reduce && !coarse) {
+    document.addEventListener("pointermove", function (e) {
+      if (cta.disabled) { cta.style.transform = ""; return; }
+      var r = cta.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2, dx = e.clientX - cx, dy = e.clientY - cy, d = Math.hypot(dx, dy);
+      if (d < 110) cta.style.transform = "translate(" + (dx * .28).toFixed(1) + "px," + (dy * .34).toFixed(1) + "px)"; else cta.style.transform = "";
+    });
+  }
 })();
 </script>
 </body>

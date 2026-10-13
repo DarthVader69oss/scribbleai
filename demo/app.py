@@ -112,6 +112,10 @@ def create_app(rec, ckpt_name):
     def index():
         return FileResponse(STATIC / "index.html")
 
+    @app.get("/space-bg.jpg")
+    def space_bg():
+        return FileResponse(STATIC / "space-bg.jpg", media_type="image/jpeg")
+
     @app.get("/dashboard")
     @app.get("/dashboard.html")
     def dashboard():
