@@ -110,7 +110,7 @@ def create_app(rec, ckpt_name):
 
     @app.get("/")
     def index():
-        return FileResponse(STATIC / "index.html")
+        return FileResponse(STATIC / "index_only.html")
 
     @app.get("/space-bg.jpg")
     def space_bg():
