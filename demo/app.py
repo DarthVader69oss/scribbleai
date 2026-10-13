@@ -119,7 +119,7 @@ def create_app(rec, ckpt_name):
     @app.get("/dashboard")
     @app.get("/dashboard.html")
     def dashboard():
-        return FileResponse(STATIC / "dashboard.html")
+        return FileResponse(STATIC / "dashboard_only.html")
 
     @app.get("/api/stats")
     def stats():
