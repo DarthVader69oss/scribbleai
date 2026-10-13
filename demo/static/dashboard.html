@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ScribbleAI: the notebook</title>
+<style>
+  /* Same exercise-book look as the live demo: ruled paper, red margin, blue-black ink.
+     System fonts only, so it works offline. */
+  :root {
+    --desk:#e3e8ee; --sheet:#f8fafc; --rule:#b9cbe0; --rule-soft:#dbe4ef; --band:#eef3f9;
+    --ink:#1a2747; --graphite:#576274; --faint:#8a94a3; --margin:#c0373f; --line:#cdd6e1; --ok:#2f9e6b;
+    --ui:"Bahnschrift","DIN Alternate","Segoe UI","Roboto Condensed","Helvetica Neue",Arial,sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --desk:#161b22; --sheet:#1d2430; --rule:#3a4b63; --rule-soft:#2b3647; --band:#222b39;
+      --ink:#e6ecf5; --graphite:#a5b0c0; --faint:#7d8898; --margin:#e0656b; --line:#323d4e; --ok:#43b988;
+    }
+  }
+  * { box-sizing:border-box; }
+  html, body { margin:0; background:var(--desk); color:var(--ink); }
+  body { font:16px/1.45 var(--ui); font-variant-numeric:tabular-nums; -webkit-font-smoothing:antialiased; }
+  .page { max-width:1240px; margin:0 auto; padding:22px 20px 40px; }
+  a { color:var(--ink); }
+  a:focus-visible, button:focus-visible, .row:focus-visible { outline:3px solid var(--margin); outline-offset:2px; }
+
+  .top { display:flex; align-items:flex-end; justify-content:space-between; gap:8px 24px; flex-wrap:wrap; margin-bottom:10px; }
+  .brand { margin:0; font-size:30px; line-height:1; font-weight:700; letter-spacing:-.01em; }
+  .brand small { display:block; margin-top:6px; font-size:15px; font-weight:400; letter-spacing:0; color:var(--graphite); }
+  .nav { display:flex; align-items:center; gap:8px 18px; flex-wrap:wrap; color:var(--graphite); font-size:14px; }
+  .live { display:inline-flex; align-items:center; gap:7px; }
+  .dot { width:9px; height:9px; border-radius:50%; background:var(--faint); }
+  .live.on .dot { background:var(--ok); }
+  .live.off { color:var(--margin); }
+  .live.off .dot { background:var(--margin); }
+  button { font:inherit; font-size:14px; min-height:40px; padding:0 14px; border-radius:6px; cursor:pointer;
+           color:var(--ink); background:var(--sheet); border:1px solid var(--line); }
+  button:hover:not(:disabled) { border-color:var(--graphite); }
+  button:disabled { color:var(--faint); cursor:default; border-style:dashed; }
+
+  /* one running sentence instead of a row of tiles */
+  .summary { margin:4px 0 18px; color:var(--graphite); font-size:15.5px; }
+  .summary b { color:var(--ink); font-weight:600; }
+  .summary i { font-style:normal; color:var(--faint); padding:0 7px; }
+
+  h2 { margin:0; font-size:13px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--graphite); }
+  .sub { margin:3px 0 0; color:var(--graphite); font-size:14px; max-width:70ch; }
+
+  /* ruled paper: horizontal rules every 40px, red margin line */
+  .paper { position:relative; background-color:var(--sheet);
+           background-image:repeating-linear-gradient(to bottom, transparent 0 39px, var(--rule-soft) 39px 40px);
+           border-radius:4px; box-shadow:0 1px 0 var(--line), 0 12px 28px -18px rgba(26,39,71,.35); overflow:hidden; }
+  .paper::before { content:""; position:absolute; left:47px; top:0; bottom:0; width:2px; background:var(--margin); opacity:.75; }
+
+  /* hero: the last line the network read */
+  .hero { padding:18px 22px 20px 68px; }
+  .hero-head { display:flex; justify-content:space-between; align-items:flex-start; gap:8px 20px; flex-wrap:wrap; }
+  .meta { color:var(--graphite); font-size:14px; min-height:20px; }
+  .meta b { color:var(--ink); font-weight:600; }
+  .ctl { display:flex; gap:8px; }
+  .ctl button { min-height:34px; font-size:13px; padding:0 12px; }
+  #said { margin:10px 0 2px; font-weight:300; font-size:clamp(34px, 5vw, 62px); line-height:1.15; letter-spacing:.01em;
+          word-break:break-word; min-height:1.15em; }
+  #said.none { color:var(--faint); font-size:clamp(20px, 2.4vw, 26px); font-weight:400; padding-top:.5em; }
+  #trace { display:block; width:100%; height:230px; margin-top:6px; }
+  .key { display:flex; gap:6px 18px; flex-wrap:wrap; color:var(--graphite); font-size:13px; margin-top:4px; }
+  .key span::before { content:""; display:inline-block; width:18px; height:3px; margin-right:7px; vertical-align:middle; background:var(--c); border-radius:2px; }
+  .key em { font-style:normal; color:var(--faint); }
+  .alts { margin-top:14px; display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:6px 24px; }
+  .alt .n { color:var(--graphite); font-size:12.5px; }
+  .alt .t { font-size:20px; word-break:break-word; }
+  .alt .t.diff { text-decoration:underline; text-decoration-color:var(--margin); text-decoration-thickness:2px; text-underline-offset:4px; }
+  .hint { color:var(--faint); font-size:14px; margin-top:12px; }
+
+  /* two plain columns, no boxes */
+  .cols { display:grid; grid-template-columns:3fr 2fr; gap:34px; margin:30px 0 8px; align-items:start; }
+  @media (max-width: 900px) { .cols { grid-template-columns:1fr; gap:26px; } }
+  #dec { width:100%; display:block; margin-top:8px; }
+  .time { margin-top:14px; }
+  .bar { display:flex; height:22px; border-radius:3px; overflow:hidden; background:var(--band); }
+  .bar i { display:block; height:100%; }
+  .bar i + i { border-left:2px solid var(--desk); }
+  .tl { display:grid; grid-template-columns:auto 1fr auto; gap:6px 12px; margin-top:14px; font-size:14.5px; align-items:baseline; }
+  .tl .sw { width:10px; height:10px; border-radius:2px; align-self:center; }
+  .tl .nm { color:var(--graphite); }
+  .tl .v { text-align:right; }
+  .tl .v small { color:var(--faint); margin-left:6px; }
+
+  /* the ledger */
+  .ledger { margin-top:24px; }
+  .ledger .paper { margin-top:12px; }
+  .row { display:grid; grid-template-columns:92px 132px 1fr 240px 76px; align-items:center; height:48px; padding:0 20px 0 68px;
+         cursor:pointer; border:0; background:none; width:100%; text-align:left; font:inherit; color:inherit; min-height:0; border-radius:0; }
+  .row:hover { background:rgba(120,140,170,.10); }
+  .row.sel { background:rgba(192,55,63,.09); }
+  .row .when { color:var(--faint); font-size:13.5px; }
+  .row svg { width:118px; height:38px; display:block; }
+  .row .txt { font-size:22px; font-weight:300; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding-right:12px; }
+  .row .dc { color:var(--graphite); font-size:13.5px; }
+  .row .ms { text-align:right; }
+  .row .ms.slow { color:var(--margin); font-weight:600; }
+  .empty { padding:26px 20px 26px 68px; color:var(--faint); height:80px; }
+  @media (max-width: 700px) {
+    .row { grid-template-columns:118px 1fr 62px; padding-left:60px; }
+    .row .when, .row .dc { display:none; }
+    .hero { padding-left:60px; padding-right:14px; }
+  }
+  .foot { margin-top:26px; padding-top:14px; border-top:1px solid var(--line); color:var(--graphite); font-size:14px; }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="top">
+    <h1 class="brand">ScribbleAI<small>The notebook: what the network read, and what it cost to read it.</small></h1>
+    <div class="nav">
+      <span class="live" id="live"><span class="dot"></span><span id="livetxt">connecting…</span></span>
+      <button id="reset" title="Clear everything the server remembers">Clear notebook</button>
+      <a href="/">Back to the writing sheet</a>
+    </div>
+  </header>
+
+  <p class="summary" id="summary">Waiting for the first line…</p>
+
+  <section aria-labelledby="h-last">
+    <h2 id="h-last">The last line the network read</h2>
+    <p class="sub">Ink is replayed as it was written. Blue-black means the network was sure at that point, red means it was torn. Underneath, at the spot where the pen was, are the raw letters the network emitted, before beam search, the language model or spelling correction changed anything. The big text above is the decoder's final answer, so any difference between the two is the decoder at work.</p>
+    <div class="paper hero" style="margin-top:12px">
+      <div class="hero-head">
+        <div class="meta" id="meta">Nothing written yet.</div>
+        <div class="ctl"><button id="replay" disabled>Replay</button><button id="follow" style="display:none">Follow live</button></div>
+      </div>
+      <p id="said" class="none">Write on the sheet and it appears here.</p>
+      <svg id="trace" role="img" aria-label="The pen trajectory coloured by the network's confidence"></svg>
+      <div class="key"><span style="--c:var(--ink)">sure</span><span style="--c:var(--graphite)">unsure</span><span style="--c:var(--margin)">torn</span><em>one reading per resampled ink point</em></div>
+      <div class="alts" id="alts"></div>
+      <div class="hint" id="althint" style="display:none">Press Compare decoders on the writing sheet to see where the decoders disagree on this line.</div>
+    </div>
+  </section>
+
+  <div class="cols">
+    <section>
+      <h2>What each decoder costs</h2>
+      <p class="sub">Every request is a dot. The tick is the median. The network pass is the same for all four, so the gap between rows is pure decoding.</p>
+      <svg id="dec" role="img" aria-label="Latency per decoder"></svg>
+    </section>
+    <section>
+      <h2>Where the time goes</h2>
+      <p class="sub">Average per request, by stage.</p>
+      <div class="time">
+        <div class="bar" id="bar"></div>
+        <div class="tl" id="tl"></div>
+      </div>
+    </section>
+  </div>
+
+  <section class="ledger">
+    <h2>Ledger</h2>
+    <p class="sub">The latest lines, newest first. One written word makes several rows because the page reads after every stroke. Click a row to put it on the sheet above.</p>
+    <div class="paper" id="ledger"><div class="empty">No lines yet.</div></div>
+  </section>
+
+  <footer class="foot">Everything shown is held in the server's memory and disappears when it restarts. The page refreshes every 3 seconds.</footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+  var NAMES = { greedy: "Greedy", beam: "Beam search", beam_lm: "Beam + language model", beam_lm_spell: "Beam + LM + spelling" };
+  var ORDER = ["greedy", "beam", "beam_lm", "beam_lm_spell"];
+  var STAGES = [["preprocess", "Preprocessing", "#3f5f8f"], ["model", "Network (BiLSTM)", "#8aa6cf"], ["decode", "Decoding", "#c3d1e6"]];
+  var NS = "http://www.w3.org/2000/svg";
+  var traces = {};                 // id -> trace, so thumbnails don't refetch
+  var stats = null, pinned = null, shownId = null, shownKey = "", anim = null;
+
+  function fmt(x) { return x >= 100 ? Math.round(x) : (x >= 10 ? x.toFixed(1) : x.toFixed(2)); }
+  function dur(s) { s = Math.round(s); if (s < 60) return s + " s"; var m = Math.floor(s / 60); if (m < 60) return m + " min"; return Math.floor(m / 60) + " h " + (m % 60) + " min"; }
+  function clock(t) { return new Date(t * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }); }
+  function el(n, a, parent) { var e = document.createElementNS(NS, n); for (var k in a) e.setAttribute(k, a[k]); if (parent) parent.appendChild(e); return e; }
+  function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+  function fetchTrace(id) {
+    if (traces[id] && traces[id].conf) return Promise.resolve(traces[id]);
+    return fetch("/api/trace/" + id).then(function (r) { if (!r.ok) throw new Error("gone"); return r.json(); })
+      .then(function (t) { traces[id] = t; return t; });
+  }
+
+  /* ---------- bounds + projection shared by the big trace and the thumbnails ---------- */
+  function bounds(ink) {
+    var x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+    ink.forEach(function (s) { s.forEach(function (p) { x0 = Math.min(x0, p[0]); x1 = Math.max(x1, p[0]); y0 = Math.min(y0, p[1]); y1 = Math.max(y1, p[1]); }); });
+    return { x0: x0, x1: x1, y0: y0, y1: y1, w: Math.max(1e-6, x1 - x0), h: Math.max(1e-6, y1 - y0) };
+  }
+
+  /* ---------- thumbnails ---------- */
+  function thumb(svg, ink) {
+    svg.innerHTML = "";
+    if (!ink || !ink.length) return;
+    var W = 118, H = 38, pad = 3, b = bounds(ink), sc = Math.min((W - 2 * pad) / b.w, (H - 2 * pad) / b.h);
+    var ox = (W - b.w * sc) / 2, oy = (H - b.h * sc) / 2;
+    ink.forEach(function (s) {
+      var d = s.map(function (p, i) { return (i ? "L" : "M") + (ox + (p[0] - b.x0) * sc).toFixed(1) + " " + (oy + (p[1] - b.y0) * sc).toFixed(1); }).join("");
+      el("path", { d: d, fill: "none", stroke: "var(--ink)", "stroke-width": 1.3, "stroke-linecap": "round", "stroke-linejoin": "round" }, svg);
+    });
+  }
+
+  /* ---------- the big trace ---------- */
+  function drawTrace(t, upto) {
+    var svg = $("trace"); svg.innerHTML = "";
+    var ink = t.ink; if (!ink || !ink.length) return;
+    var W = Math.max(300, svg.clientWidth), H = svg.clientHeight, padX = 14, glyphH = t.conf ? 30 : 6, padT = 12;
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    var b = bounds(ink), sc = Math.min((W - 2 * padX) / b.w, (H - padT - glyphH - 6) / b.h);
+    var ox = (W - b.w * sc) / 2, oy = padT;
+    function X(p) { return ox + (p[0] - b.x0) * sc; }
+    function Y(p) { return oy + (p[1] - b.y0) * sc; }
+    var colour = { sure: css("--ink"), mid: css("--graphite"), torn: css("--margin") };
+    function cls(c) { return c == null ? "sure" : (c >= 0.8 ? "sure" : (c >= 0.5 ? "mid" : "torn")); }
+
+    var n = 0, glyphs = [];
+    ink.forEach(function (s) {
+      var run = null;
+      function flush() { if (run && run.pts.length > 1) { el("polyline", { points: run.pts.join(" "), fill: "none", stroke: colour[run.c], "stroke-width": 2.6, "stroke-linecap": "round", "stroke-linejoin": "round" }, svg); } run = null; }
+      s.forEach(function (p, i) {
+        var f = n++; if (f >= upto) return;
+        var c = cls(t.conf ? t.conf[f] : null), pt = X(p).toFixed(1) + "," + Y(p).toFixed(1);
+        if (!run) run = { c: c, pts: [pt] };
+        else if (run.c !== c) { var last = run.pts[run.pts.length - 1]; flush(); run = { c: c, pts: [last, pt] }; }
+        else run.pts.push(pt);
+        if (t.idx && t.idx[f] !== t.blank && (f === 0 || t.idx[f] !== t.idx[f - 1])) glyphs.push({ x: X(p), ch: t.chars[t.idx[f]], c: t.conf[f] });
+      });
+      flush();
+    });
+    if (t.conf) {
+      var gy = H - 8, last = -1e9;
+      glyphs.forEach(function (g) {
+        var x = Math.max(8, Math.min(W - 8, g.x)); if (x - last < 10) x = last + 10; last = x;
+        el("line", { x1: g.x, x2: x, y1: gy - 18, y2: gy - 14, stroke: "var(--rule)", "stroke-width": 1 }, svg);
+        var tx = el("text", { x: x, y: gy, "text-anchor": "middle", "font-size": 20, "font-weight": 500,
+                              fill: g.c >= 0.8 ? css("--ink") : (g.c >= 0.5 ? css("--graphite") : css("--margin")) }, svg);
+        tx.textContent = g.ch === " " ? "␣" : g.ch;
+      });
+    }
+  }
+
+  function replay(t) {
+    cancelAnimationFrame(anim);
+    var total = t.ink.reduce(function (a, s) { return a + s.length; }, 0), t0 = performance.now(), dur = 1400;
+    (function step(now) {
+      var f = Math.min(1, (now - t0) / dur);
+      drawTrace(t, Math.round(total * f));
+      if (f < 1) anim = requestAnimationFrame(step);
+    })(t0);
+  }
+
+  var current = null;
+  function showHero(row, animate) {
+    if (!row) return;
+    var key = row.id;
+    $("said").className = row.text ? "" : "none";
+    $("said").textContent = row.text || "(nothing recognised)";
+    $("meta").innerHTML = "";
+    var parts = [["", clock(row.t)], ["b", NAMES[row.mode] || row.mode], ["", row.strokes + (row.strokes === 1 ? " stroke" : " strokes") + ", " + row.frames + " frames"], ["b", fmt(row.total) + " ms"]];
+    parts.forEach(function (p, i) { if (i) $("meta").appendChild(document.createTextNode("  ·  ")); var e = document.createElement(p[0] || "span"); e.textContent = p[1]; $("meta").appendChild(e); });
+    $("follow").style.display = pinned ? "" : "none";
+    // decoder disagreement
+    var box = $("alts"); box.innerHTML = "";
+    if (row.alts) {
+      $("althint").style.display = "none";
+      ORDER.forEach(function (m) {
+        if (row.alts[m] === undefined) return;
+        var d = document.createElement("div"); d.className = "alt";
+        d.innerHTML = '<div class="n"></div><div class="t"></div>';
+        d.firstChild.textContent = NAMES[m]; d.lastChild.textContent = row.alts[m] || "(nothing)";
+        if (m !== "greedy" && row.alts[m] !== row.alts.greedy) d.lastChild.className = "t diff";
+        box.appendChild(d);
+      });
+    } else $("althint").style.display = "block";
+    fetchTrace(row.id).then(function (t) {
+      current = t; $("replay").disabled = false;
+      var k = row.id + ":" + (t.conf ? "c" : "n");
+      if (k !== shownKey) { shownKey = k; if (animate) replay(t); else drawTrace(t, 1e9); }
+    }).catch(function () {
+      $("trace").innerHTML = ""; $("replay").disabled = true;
+    });
+  }
+
+  /* ---------- cost of each decoder: strip plot ---------- */
+  function drawDecoders(by) {
+    var svg = $("dec"); svg.innerHTML = "";
+    var W = Math.max(320, svg.parentNode.clientWidth), rowH = 46, L = 168, R = 14, T = 6, B = 26, H = T + ORDER.length * rowH + B;
+    svg.setAttribute("viewBox", "0 0 " + W + " " + H); svg.setAttribute("height", H);
+    var all = []; ORDER.forEach(function (m) { all = all.concat(by[m] || []); });
+    var top = Math.max(10, Math.ceil(Math.max.apply(null, all.concat([1])) / 5) * 5);
+    var X = function (v) { return L + (W - L - R) * v / top; };
+    var step = top <= 20 ? 5 : (top <= 60 ? 10 : 20);
+    for (var v = 0; v <= top; v += step) {
+      el("line", { x1: X(v), x2: X(v), y1: T, y2: H - B, stroke: "var(--rule-soft)", "stroke-width": 1 }, svg);
+      var tl = el("text", { x: X(v), y: H - 8, "text-anchor": "middle", "font-size": 12, fill: "var(--faint)" }, svg); tl.textContent = v + (v === top ? " ms" : "");
+    }
+    ORDER.forEach(function (m, r) {
+      var cy = T + r * rowH + rowH / 2, vals = by[m] || [];
+      var lab = el("text", { x: 0, y: cy + 5, "font-size": 14.5, fill: vals.length ? css("--ink") : css("--faint") }, svg); lab.textContent = NAMES[m];
+      el("line", { x1: L, x2: W - R, y1: cy, y2: cy, stroke: "var(--rule)", "stroke-width": 1 }, svg);
+      if (!vals.length) { var e = el("text", { x: L + 6, y: cy - 8, "font-size": 12.5, fill: "var(--faint)" }, svg); e.textContent = "not used yet"; return; }
+      vals.forEach(function (x, i) {
+        var jit = ((i * 37) % 13 - 6) * 1.5;              // deterministic vertical scatter
+        el("circle", { cx: X(x), cy: cy + jit, r: 3.4, fill: "var(--ink)", opacity: 0.45 }, svg);
+      });
+      var s = vals.slice().sort(function (a, b) { return a - b; }), med = s[Math.floor((s.length - 1) / 2)];
+      el("line", { x1: X(med), x2: X(med), y1: cy - 15, y2: cy + 15, stroke: "var(--margin)", "stroke-width": 2.5, "stroke-linecap": "round" }, svg);
+      var mt = el("text", { x: Math.min(W - R, X(med) + 7), y: cy - 17, "font-size": 12, fill: "var(--margin)" }, svg); mt.textContent = fmt(med) + " ms  (" + vals.length + ")";
+    });
+  }
+
+  /* ---------- time split ---------- */
+  function drawTime(b) {
+    var sum = b.preprocess + b.model + b.decode, bar = $("bar"), tl = $("tl"); bar.innerHTML = ""; tl.innerHTML = "";
+    STAGES.forEach(function (s) {
+      var seg = document.createElement("i"); seg.style.width = (sum ? 100 * b[s[0]] / sum : 0) + "%"; seg.style.background = s[2]; seg.title = s[1]; bar.appendChild(seg);
+      var sw = document.createElement("span"); sw.className = "sw"; sw.style.background = s[2];
+      var nm = document.createElement("span"); nm.className = "nm"; nm.textContent = s[1];
+      var v = document.createElement("span"); v.className = "v"; v.textContent = fmt(b[s[0]]) + " ms";
+      var sm = document.createElement("small"); sm.textContent = sum ? Math.round(100 * b[s[0]] / sum) + "%" : ""; v.appendChild(sm);
+      tl.appendChild(sw); tl.appendChild(nm); tl.appendChild(v);
+    });
+  }
+
+  /* ---------- ledger ---------- */
+  function drawLedger(rows, p95) {
+    var box = $("ledger");
+    if (!rows.length) { box.innerHTML = '<div class="empty">No lines yet.</div>'; return; }
+    box.innerHTML = "";
+    rows.forEach(function (r) {
+      var b = document.createElement("button"); b.className = "row" + (r.id === shownId ? " sel" : ""); b.type = "button";
+      b.innerHTML = '<span class="when"></span><svg viewBox="0 0 118 38" aria-hidden="true"></svg><span class="txt"></span><span class="dc"></span><span class="ms"></span>';
+      b.children[0].textContent = clock(r.t);
+      b.children[2].textContent = r.text || "(nothing)";
+      b.children[3].textContent = (NAMES[r.mode] || r.mode) + (r.compare ? ", compared" : "");
+      b.children[4].textContent = fmt(r.total) + " ms"; if (p95 && r.total >= p95 && rows.length >= 8) b.children[4].className = "ms slow"; else b.children[4].className = "ms";
+      b.onclick = function () { pinned = r.id; shownKey = ""; render(); showHero(r, true); };
+      box.appendChild(b);
+      var svg = b.children[1];
+      if (traces[r.id]) thumb(svg, traces[r.id].ink); else fetchTrace(r.id).then(function (t) { thumb(svg, t.ink); }).catch(function () {});
+    });
+  }
+
+  function render() {
+    var s = stats; if (!s) return;
+    var sm = $("summary");
+    if (!s.count) sm.textContent = "Nothing in the notebook yet. Write on the sheet and it fills in here.";
+    else sm.innerHTML = '<b>' + s.count + '</b> lines read<i>/</i>median <b>' + fmt(s.median_ms) + ' ms</b><i>/</i>95th percentile <b>' + fmt(s.p95_ms) +
+      ' ms</b><i>/</i>average <b>' + Math.round(s.mean_frames) + '</b> ink points per line<i>/</i>' + (s.checkpoint ? '<b>' + s.checkpoint + '</b><i>/</i>' : '') + 'up ' + dur(s.uptime_s);
+    var target = null;
+    if (pinned) s.recent.forEach(function (r) { if (r.id === pinned) target = r; });
+    if (!target) { if (pinned) { var tr = traces[pinned]; } pinned = pinned && target ? pinned : null; target = s.recent[0] || null; }
+    shownId = target ? target.id : null;
+    $("follow").style.display = pinned ? "" : "none";
+    drawDecoders(s.lat_by_mode); drawTime(s.breakdown_ms); drawLedger(s.recent, s.p95_ms);
+    if (!target) { $("said").className = "none"; $("said").textContent = "Write on the sheet and it appears here."; $("meta").textContent = "Nothing written yet."; $("trace").innerHTML = ""; $("alts").innerHTML = ""; $("althint").style.display = "none"; $("replay").disabled = true; shownKey = ""; current = null; return; }
+    var isNew = (target.id + ":c") !== shownKey && (target.id + ":n") !== shownKey;
+    showHero(target, isNew);
+  }
+
+  function setLive(ok) { $("live").className = "live " + (ok ? "on" : "off"); $("livetxt").textContent = ok ? "live" : "server not responding"; }
+  function poll() {
+    fetch("/api/stats").then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
+      .then(function (s) { stats = s; setLive(true); render(); }).catch(function () { setLive(false); });
+  }
+  $("replay").onclick = function () { if (current) replay(current); };
+  $("follow").onclick = function () { pinned = null; shownKey = ""; render(); };
+  $("reset").onclick = function () { traces = {}; pinned = null; shownKey = ""; fetch("/api/stats/reset", { method: "POST" }).then(poll); };
+  window.addEventListener("resize", function () { if (current) drawTrace(current, 1e9); if (stats) drawDecoders(stats.lat_by_mode); });
+  poll(); setInterval(poll, 3000);
+})();
+</script>
+</body>
+</html>

@@ -9,19 +9,27 @@ Two front ends over the SAME Recognizer (same preprocessing as training):
   /         live canvas: transcription updates after every stroke; switch decoders;
             "compare decoders" shows greedy / beam / beam+LM / +spell side by side with latency;
             shows the preprocessed, resampled trajectory the model actually sees.
+  /dashboard  second-screen view of the same session: replays the last line the network read, coloured by how
+            sure it was, with the letters it emitted placed where they were written; cost of each decoder;
+            where the time goes; a ledger of recent lines. Statistics are kept in memory only.
   /gradio   Gradio app: upload a collector .jsonl export and score every sample (CER per line).
 Runs on CPU; the model never needs a GPU at inference time.
 """
 import argparse
 import json
 import sys
+import itertools
+import threading
+import time
+from collections import OrderedDict, deque
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 import uvicorn
-from fastapi import FastAPI, HTTPException
+import numpy as np
+from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
@@ -30,6 +38,62 @@ from src.inference import Recognizer, MODES
 STATIC = Path(__file__).resolve().parent / "static"
 REC: Recognizer = None
 CKPT = ""
+
+# Dashboard data. Everything lives in memory only (nothing is written to disk) and is cleared when the
+# server restarts or via POST /api/stats/reset.
+#   LOG     one small row per request: timings, decoder, text           (last 2000)
+#   TRACES  per request the normalised pen trajectory plus, once the background task has run, what the
+#           network saw at every point: its top choice and how sure it was  (last 60)
+# The model emits exactly one output frame per resampled ink point, so the two line up one to one.
+LOG = deque(maxlen=2000)
+TRACES = OrderedDict()
+LOG_LOCK = threading.Lock()
+NEXT_ID = itertools.count(1)
+STARTED = time.time()
+MODE_ORDER = ("greedy", "beam", "beam_lm", "beam_lm_spell")
+
+
+def _pct(vals, q):
+    if not vals:
+        return 0.0
+    v = sorted(vals)
+    return v[min(len(v) - 1, int(round(q * (len(v) - 1))))]
+
+
+def build_stats():
+    with LOG_LOCK:
+        rows = list(LOG)
+    tot = [r["total"] for r in rows]
+    n = len(rows)
+    modes = {}
+    by_mode = {m: [] for m in MODE_ORDER}
+    for r in rows:
+        modes[r["mode"]] = modes.get(r["mode"], 0) + 1
+        by_mode.setdefault(r["mode"], []).append(round(r["total"], 1))
+    return {
+        "checkpoint": CKPT, "uptime_s": time.time() - STARTED, "started": STARTED, "count": n,
+        "median_ms": _pct(tot, 0.5), "p95_ms": _pct(tot, 0.95), "max_ms": max(tot) if tot else 0.0,
+        "mean_frames": (sum(r["frames"] for r in rows) / n) if n else 0.0,
+        "breakdown_ms": {k: (sum(r[k] for r in rows) / n) if n else 0.0 for k in ("preprocess", "model", "decode")},
+        "modes": modes, "compares": sum(1 for r in rows if r["compare"]),
+        "lat_by_mode": {m: v[-150:] for m, v in by_mode.items()},
+        "recent": rows[-15:][::-1],
+    }
+
+
+def _fill_confidence(rid, strokes):
+    """Background task: per ink point, the network's top choice and its probability."""
+    try:
+        from src.preprocessing.pipeline import preprocess
+        F, _ = preprocess(strokes, REC.pcfg)
+        p = np.exp(REC.log_probs_from_features(F))
+        conf = [round(float(c), 2) for c in p.max(axis=1)]
+        idx = [int(i) for i in p.argmax(axis=1)]
+        with LOG_LOCK:
+            if rid in TRACES:
+                TRACES[rid]["conf"], TRACES[rid]["idx"] = conf, idx
+    except Exception:
+        pass                                    # the dashboard simply shows the ink without the overlay
 
 
 class RecognizeRequest(BaseModel):
@@ -48,6 +112,32 @@ def create_app(rec, ckpt_name):
     def index():
         return FileResponse(STATIC / "index.html")
 
+    @app.get("/dashboard")
+    @app.get("/dashboard.html")
+    def dashboard():
+        return FileResponse(STATIC / "dashboard.html")
+
+    @app.get("/api/stats")
+    def stats():
+        return build_stats()
+
+    @app.get("/api/trace/{rid}")
+    def trace(rid: int):
+        with LOG_LOCK:
+            t = TRACES.get(rid)
+            t = dict(t) if t else None
+        if t is None:
+            raise HTTPException(404, "trace no longer kept")
+        t["chars"], t["blank"] = REC.vocab.chars, REC.vocab.blank
+        return t
+
+    @app.post("/api/stats/reset")
+    def stats_reset():
+        with LOG_LOCK:
+            LOG.clear()
+            TRACES.clear()
+        return {"ok": True}
+
     @app.get("/api/info")
     def info():
         return {"checkpoint": CKPT, "epoch": REC.epoch, "val_cer": REC.best_cer,
@@ -55,7 +145,7 @@ def create_app(rec, ckpt_name):
                 "params": REC.model.num_parameters()}
 
     @app.post("/api/recognize")
-    def recognize(req: RecognizeRequest):
+    def recognize(req: RecognizeRequest, bg: BackgroundTasks):
         strokes = [s for s in req.strokes if len(s) > 0]
         if not strokes:
             return {"text": "", "ms": {"total": 0}, "frames": 0, "ink": [], "all": {}}
@@ -67,7 +157,6 @@ def create_app(rec, ckpt_name):
             raise HTTPException(400, str(e))
         if req.compare:
             from src.preprocessing.pipeline import preprocess
-            import time
             F, _ = preprocess(strokes, REC.pcfg)
             lp = REC.log_probs_from_features(F)
             out["all"] = {}
@@ -75,6 +164,20 @@ def create_app(rec, ckpt_name):
                 t0 = time.perf_counter()
                 txt = REC.decode(lp, m, req.beam_width)
                 out["all"][m] = {"text": txt, "decode_ms": (time.perf_counter() - t0) * 1000}
+        rid = next(NEXT_ID)
+        row = {"id": rid, "t": time.time(), "text": out["text"], "mode": req.mode, "compare": bool(req.compare),
+               "frames": out["frames"], "strokes": len(strokes), "points": sum(len(x) for x in strokes),
+               "preprocess": out["ms"]["preprocess"], "model": out["ms"]["model"],
+               "decode": out["ms"]["decode"], "total": out["ms"]["total"]}
+        if req.compare:
+            row["alts"] = {m: v["text"] for m, v in out["all"].items()}
+        with LOG_LOCK:
+            LOG.append(row)
+            TRACES[rid] = {"ink": [[[round(float(x), 3), round(float(y), 3)] for x, y in st] for st in out["ink"]],
+                           "conf": None, "idx": None}
+            while len(TRACES) > 60:
+                TRACES.popitem(last=False)
+        bg.add_task(_fill_confidence, rid, strokes)
         return out
 
     return app
