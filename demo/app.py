@@ -110,7 +110,7 @@ def create_app(rec, ckpt_name):
 
     @app.get("/")
     def index():
-        return FileResponse(STATIC / "index_only.html")
+        return FileResponse(STATIC / "index.html")
 
     @app.get("/space-bg.jpg")
     def space_bg():
@@ -119,7 +119,7 @@ def create_app(rec, ckpt_name):
     @app.get("/dashboard")
     @app.get("/dashboard.html")
     def dashboard():
-        return FileResponse(STATIC / "dashboard_only.html")
+        return FileResponse(STATIC / "dashboard.html")
 
     @app.get("/api/stats")
     def stats():
